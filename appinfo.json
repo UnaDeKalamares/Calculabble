@@ -1,0 +1,44 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "CarlosPC",
+    "enableMultiJS": true,
+    "longName": "Calculabble",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/operation.png",
+                "name": "OPERATION",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/add_figure.png",
+                "name": "ADD_FIGURE",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/increase.png",
+                "name": "INCREASE",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "Calculabble",
+    "targetPlatforms": [
+        "aplite",
+        "basalt",
+        "chalk"
+    ],
+    "uuid": "3f6733f5-443a-4ba1-ba5d-b8a70031447c",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
