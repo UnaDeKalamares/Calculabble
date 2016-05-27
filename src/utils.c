@@ -1,5 +1,7 @@
 #include "utils.h"
 
+const int MAX_VALUE = 10000000;
+
 void itoa (int value, char *result, int base)
 {
     // check that the base if valid
@@ -48,6 +50,18 @@ int increase_value(int value) {
     
   }
   return value;
+}
+
+int add_figure(int value) {
+  if (value < MAX_VALUE) {
+    
+    return value *= 10;
+    
+  } else {
+    
+    return value;
+    
+  }
 }
 
 void int_to_string(int value, char *string) {

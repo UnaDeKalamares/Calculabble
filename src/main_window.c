@@ -13,13 +13,15 @@ static TextLayer *second_operand_text_layer;
 static char *second_operand_string;
 
 static bool first_operand;
-static int current_value;
+static int current_value = 0;
 
 static ActionBarLayer *action_bar_layer;
 
 // Declare method prototypes
 void click_config_provider(void *context);
 void increase_value_click_handler(ClickRecognizerRef recognizer, void *context);
+void add_figure_click_handler(ClickRecognizerRef recognizer, void *context);
+void set_text_current_operand();
 
 // Called on .load handler event, init layout
 static void window_load() { 
@@ -73,11 +75,22 @@ static void window_load() {
 // Define click handlers for each button interactor
 void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) increase_value_click_handler);
+  window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
 }
 
 // Implement increase value handler
 void increase_value_click_handler(ClickRecognizerRef recognizer, void *context) {
   current_value = increase_value(current_value);
+  set_text_current_operand();
+}
+
+// Implement add figure handler
+void add_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
+  current_value = add_figure(current_value);
+  set_text_current_operand();
+}
+
+void set_text_current_operand() {
   if (first_operand) {
     int_to_string(current_value, first_operand_string);
     text_layer_set_text(first_operand_text_layer, first_operand_string);
