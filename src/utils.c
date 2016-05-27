@@ -36,3 +36,28 @@ int power(int a, int b){
   }
   return result;
 }
+
+int increase_value(int value) {
+  if (value % 10 == 9) {
+    
+    value -= 9;
+    
+  } else {
+    
+    value++;
+    
+  }
+  return value;
+}
+
+void int_to_string(int value, char *string) {
+  int num_chars = 0;
+  
+  do {
+    
+    num_chars++;
+    
+  } while (power(10, num_chars) < value);
+      
+  itoa(value, string, 10);
+}

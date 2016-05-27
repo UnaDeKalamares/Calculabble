@@ -1,4 +1,5 @@
 #include "main_window.h"
+#include "utils.h"
 
 static Window *window;
 
@@ -11,7 +12,14 @@ static char operation_string[2];
 static TextLayer *second_operand_text_layer;
 static char *second_operand_string;
 
+static bool first_operand;
+static int current_value;
+
 static ActionBarLayer *action_bar_layer;
+
+// Declare method prototypes
+void click_config_provider(void *context);
+void increase_value_click_handler(ClickRecognizerRef recognizer, void *context);
 
 // Called on .load handler event, init layout
 static void window_load() { 
@@ -42,9 +50,41 @@ static void window_load() {
   action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, gbitmap_create_with_resource(RESOURCE_ID_OPERATION), true);
   action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_DOWN, gbitmap_create_with_resource(RESOURCE_ID_ADD_FIGURE), true);
   
+  // Define click_config_provider for click handling
+  action_bar_layer_set_click_config_provider(action_bar_layer, click_config_provider);
+  
   // Add the action bar to the window
   action_bar_layer_add_to_window(action_bar_layer, window);
   
+  // Initialize values
+  // Set first operand as current
+  first_operand = true;
+  
+  // Allocate string resources
+  first_operand_string = (char*) malloc(15 * sizeof(char));
+  second_operand_string = (char*) malloc(15 * sizeof(char));  
+  
+  // Init first_operand_string
+  first_operand_string = "0";
+  text_layer_set_text(first_operand_text_layer, first_operand_string);
+  
+}
+
+// Define click handlers for each button interactor
+void click_config_provider(void *context) {
+  window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) increase_value_click_handler);
+}
+
+// Implement increase value handler
+void increase_value_click_handler(ClickRecognizerRef recognizer, void *context) {
+  current_value = increase_value(current_value);
+  if (first_operand) {
+    int_to_string(current_value, first_operand_string);
+    text_layer_set_text(first_operand_text_layer, first_operand_string);
+  } else {
+    int_to_string(current_value, second_operand_string);
+    text_layer_set_text(second_operand_text_layer, second_operand_string);
+  }
 }
 
 // Called on .unload handler event, destroy layout
