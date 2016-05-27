@@ -1,5 +1,6 @@
 #include "main_window.h"
 #include "utils.h"
+#include "operation_window.h"
 
 static Window *window;
 
@@ -22,20 +23,20 @@ void click_config_provider(void *context);
 void increase_value_click_handler(ClickRecognizerRef recognizer, void *context);
 void add_figure_click_handler(ClickRecognizerRef recognizer, void *context);
 void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context);
+void select_operation_click_handler(ClickRecognizerRef recognizer, void *context);
 void set_text_current_operand();
 
 // Called on .load handler event, init layout
 static void window_load() { 
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
-    
-  // Create a text layer and set the text
+        
+  // Create first operand text layer
 	first_operand_text_layer = text_layer_create((GRect) {
     .origin = {0, 0},
     .size = {bounds.size.w - ACTION_BAR_WIDTH, bounds.size.h / 3}
   });
-	text_layer_set_text(first_operand_text_layer, first_operand_string);
-    
+  
   // Set the font and text alignment
 	text_layer_set_font(first_operand_text_layer, fonts_get_system_font(FONT_KEY_LECO_20_BOLD_NUMBERS));
 	text_layer_set_text_alignment(first_operand_text_layer, GTextAlignmentCenter);
@@ -78,6 +79,7 @@ void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) increase_value_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
   window_multi_click_subscribe(BUTTON_ID_DOWN, 2, 0, 0, false, remove_figure_click_handler);
+  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_operation_click_handler);
 }
 
 // Implement increase value handler
@@ -96,6 +98,11 @@ void add_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
 void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
   current_value = remove_figure(current_value);
   set_text_current_operand();
+}
+
+// Implement select operand handler
+void select_operation_click_handler(ClickRecognizerRef recognizer, void *context) {
+  operation_window_push();
 }
 
 void set_text_current_operand() {
