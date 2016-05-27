@@ -64,6 +64,18 @@ int add_figure(int value) {
   }
 }
 
+int remove_figure(int value) {
+  if (value >= 10) {
+    
+    return value /= 10;
+    
+  } else {
+    
+    return value;
+    
+  }
+}
+
 void int_to_string(int value, char *string) {
   int num_chars = 0;
   

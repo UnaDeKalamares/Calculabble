@@ -21,6 +21,7 @@ static ActionBarLayer *action_bar_layer;
 void click_config_provider(void *context);
 void increase_value_click_handler(ClickRecognizerRef recognizer, void *context);
 void add_figure_click_handler(ClickRecognizerRef recognizer, void *context);
+void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context);
 void set_text_current_operand();
 
 // Called on .load handler event, init layout
@@ -31,7 +32,7 @@ static void window_load() {
   // Create a text layer and set the text
 	first_operand_text_layer = text_layer_create((GRect) {
     .origin = {0, 0},
-    .size = {bounds.size.w - 30, bounds.size.h / 3}
+    .size = {bounds.size.w - ACTION_BAR_WIDTH, bounds.size.h / 3}
   });
 	text_layer_set_text(first_operand_text_layer, first_operand_string);
     
@@ -76,6 +77,7 @@ static void window_load() {
 void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) increase_value_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
+  window_multi_click_subscribe(BUTTON_ID_DOWN, 2, 0, 0, false, remove_figure_click_handler);
 }
 
 // Implement increase value handler
@@ -87,6 +89,12 @@ void increase_value_click_handler(ClickRecognizerRef recognizer, void *context) 
 // Implement add figure handler
 void add_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
   current_value = add_figure(current_value);
+  set_text_current_operand();
+}
+
+// Implement remove figure handler
+void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
+  current_value = remove_figure(current_value);
   set_text_current_operand();
 }
 
