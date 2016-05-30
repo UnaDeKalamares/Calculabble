@@ -1,6 +1,10 @@
 #pragma once
 #include <pebble.h>
 
+#define MAX_CHARACTERS 10000000
+#define MAX_VALUE 99999999
+#define MIN_VALUE -9999999
+
 enum Operation {
   Addition = 1,
   Subtraction = 2,

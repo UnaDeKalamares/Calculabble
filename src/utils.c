@@ -1,7 +1,5 @@
 #include "utils.h"
 
-const int MAX_VALUE = 10000000;
-
 // Source: https://gist.github.com/rageandqq/2ab31c71e5c2185e20d2
 void itoa (int value, char *result, int base)
 {
@@ -54,7 +52,7 @@ int increase_value(int value) {
 }
 
 int add_figure(int value) {
-  if (value < MAX_VALUE) {
+  if (value < MAX_CHARACTERS) {
     
     return value *= 10;
     

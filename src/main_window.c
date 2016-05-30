@@ -1,6 +1,9 @@
 #include "main_window.h"
 #include "utils.h"
 
+const char *division_zero = "Division by 0!";
+const char *too_big = "Too big!";
+  
 static Window *window;
 
 static TextLayer *first_operand_text_layer;
@@ -48,7 +51,7 @@ static void window_load() {
   });
   
   // Set the font and text alignment
-	text_layer_set_font(first_operand_text_layer, fonts_get_system_font(FONT_KEY_LECO_20_BOLD_NUMBERS));
+	text_layer_set_font(first_operand_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
 	text_layer_set_text_alignment(first_operand_text_layer, GTextAlignmentCenter);
 
 	// Add the text layer to the window
@@ -64,7 +67,7 @@ static void window_load() {
   });
   
   // Set the font and text alignment
-	text_layer_set_font(second_operand_text_layer, fonts_get_system_font(FONT_KEY_LECO_20_BOLD_NUMBERS));
+	text_layer_set_font(second_operand_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
 	text_layer_set_text_alignment(second_operand_text_layer, GTextAlignmentCenter);
 
 	// Add the text layer to the window
@@ -98,7 +101,7 @@ static void window_load() {
   
 }
 
-// Define click handlers for each button interactor
+// Define click handlers for each button interactor (when introducing first operand)
 void operation_click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) increase_value_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
@@ -106,6 +109,7 @@ void operation_click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_operation_click_handler);
 }
 
+// Define click handlers for each button interactor (when introducing second operand)
 void result_click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) increase_value_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
@@ -133,20 +137,52 @@ void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
 
 // Implement select operand handler
 void select_operation_click_handler(ClickRecognizerRef recognizer, void *context) {
-  operation_window_push();
+  const char *first = text_layer_get_text(first_operand_text_layer);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "First operand = %s", first);
+  if (strcmp(first, division_zero) == 0 || strcmp(first, too_big) == 0) {
+    text_layer_set_text(first_operand_text_layer, first_operand_string);
+  } else {
+    operation_window_push();
+  }
 }
 
 // Implement result handler
 void result_click_handler(ClickRecognizerRef recognizer, void *context) {
-  // Perform calculation
-  current_value = get_result(atoi(first_operand_string), operation_enum, atoi(second_operand_string));
+  // Get operands as ints
+  int first_operand_int = atoi(first_operand_string);
+  int second_operand_int = atoi(second_operand_string);
   
   // Reset window
   // Set first operand as current
   first_operand = true;
-      
-  // Set calculation result as first operand
-  set_text_current_operand();
+  
+  // Prevent division by zero
+  if (second_operand_int == 0 && operation_enum == Division) {
+    
+    text_layer_set_text(first_operand_text_layer, division_zero);
+    // Restore default value for first operand
+    int_to_string(0, first_operand_string);
+    
+  } else {
+    
+    // Perform calculation
+    current_value = get_result(first_operand_int, operation_enum, second_operand_int);
+        
+    // Ignore result if it's too big 
+   if ( current_value > MAX_VALUE || current_value < MIN_VALUE) {
+     
+      text_layer_set_text(first_operand_text_layer, too_big);
+      // Restore default value for first operand
+      int_to_string(0, first_operand_string);
+     
+    } else {
+     
+      // Set calculation result as first operand
+      set_text_current_operand();
+     
+    }
+    
+  }
   
   // Restore current value
   current_value = 0;
@@ -157,6 +193,8 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
   init_operation_bitmap_layer(bounds);
+  
+  // Restore select button icon
   action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, gbitmap_create_with_resource(RESOURCE_ID_OPERATION), true);
   
   // Reset second operand text layer
