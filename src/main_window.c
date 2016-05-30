@@ -138,10 +138,32 @@ void select_operation_click_handler(ClickRecognizerRef recognizer, void *context
 
 // Implement result handler
 void result_click_handler(ClickRecognizerRef recognizer, void *context) {
+  // Perform calculation
   current_value = get_result(atoi(first_operand_string), operation_enum, atoi(second_operand_string));
-  first_operand = true;
   
+  // Reset window
+  // Set first operand as current
+  first_operand = true;
+      
+  // Set calculation result as first operand
   set_text_current_operand();
+  
+  // Restore current value
+  current_value = 0;
+  
+  // Remove bitmap (necessary dealloc and alloc)
+  layer_remove_from_parent(bitmap_layer_get_layer(operation_bitmap_layer));
+  bitmap_layer_destroy(operation_bitmap_layer);
+  Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_bounds(window_layer);
+  init_operation_bitmap_layer(bounds);
+  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, gbitmap_create_with_resource(RESOURCE_ID_OPERATION), true);
+  
+  // Reset second operand text layer
+  text_layer_set_text(second_operand_text_layer, "");
+  
+  // Restore action bar click config provider
+  action_bar_layer_set_click_config_provider(action_bar_layer, operation_click_config_provider);
 }
 
 // Set current value in the correct text layer
@@ -159,6 +181,7 @@ void set_text_current_operand() {
 static void window_appear() {
   // If we chose an operation
   if (!first_operand) {
+    // Init bitmap
     GBitmap *bitmap;
     switch(operation_enum) {
       case Addition:
@@ -174,16 +197,22 @@ static void window_appear() {
         bitmap = gbitmap_create_with_resource(RESOURCE_ID_DIVISION_BLACK);
         break;
     }
+    // Set operation bitmap
     bitmap_layer_set_bitmap(operation_bitmap_layer, bitmap);
+    // Change bitmap layer background color to transparent
     bitmap_layer_set_background_color(operation_bitmap_layer, GColorClear);
+    // Set bitmap composition to use transparent background
     bitmap_layer_set_compositing_mode(operation_bitmap_layer, GCompOpSet);
   
+    // Set second operand text layer value
     current_value = 0;  
     int_to_string(current_value, second_operand_string);
     text_layer_set_text(second_operand_text_layer, second_operand_string);
     
+    // Replace action bar select button icon
     action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, gbitmap_create_with_resource(RESOURCE_ID_RESULT), true);
     
+    // Replace action bar click config provider
     action_bar_layer_set_click_config_provider(action_bar_layer, result_click_config_provider);
   }
 
