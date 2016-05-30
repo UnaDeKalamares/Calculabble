@@ -13,18 +13,35 @@ static uint16_t get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_in
 }
 
 static void draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *context) {
+  bool highlighted = menu_cell_layer_is_highlighted(cell_layer);
   switch(cell_index->row) {
     case 0:
-      menu_cell_basic_draw(ctx, cell_layer, "Addition", NULL, NULL);
+      if (highlighted) {
+        menu_cell_basic_draw(ctx, cell_layer, "Addition", NULL, gbitmap_create_with_resource(RESOURCE_ID_ADDITION));
+      } else {
+        menu_cell_basic_draw(ctx, cell_layer, "Addition", NULL, gbitmap_create_with_resource(RESOURCE_ID_ADDITION_BLACK));
+      }
       break;
     case 1:
-      menu_cell_basic_draw(ctx, cell_layer, "Subtraction", NULL, NULL);
+      if (highlighted) {
+        menu_cell_basic_draw(ctx, cell_layer, "Subtraction", NULL, gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION));
+      } else {
+        menu_cell_basic_draw(ctx, cell_layer, "Subtraction", NULL, gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION_BLACK));
+      }
       break;
     case 2:
-      menu_cell_basic_draw(ctx, cell_layer, "Multiplication", NULL, NULL);
+      if (highlighted) {
+        menu_cell_basic_draw(ctx, cell_layer, "Mutiplication", NULL, gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION));
+      } else {
+        menu_cell_basic_draw(ctx, cell_layer, "Multiplication", NULL, gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION_BLACK));
+      }
       break;
     case 3:
-      menu_cell_basic_draw(ctx, cell_layer, "Division", NULL, NULL);
+      if (highlighted) {
+        menu_cell_basic_draw(ctx, cell_layer, "Division", NULL, gbitmap_create_with_resource(RESOURCE_ID_DIVISION));
+      } else {
+        menu_cell_basic_draw(ctx, cell_layer, "Division", NULL, gbitmap_create_with_resource(RESOURCE_ID_DIVISION_BLACK));
+      }
       break;
   }
 }
@@ -47,27 +64,22 @@ static void select_callback(struct MenuLayer *menu_layer, MenuIndex *cell_index,
   switch(cell_index->row) {
     // Addition
     case 0:
-      operation_string = "+";
+      operation_enum = Addition;
       break;
     // Subtraction
     case 1:
-      operation_string = "-";
+      operation_enum = Subtraction;
       break;
     // Multiplication
     case 2:
-      operation_string = "X";
+      operation_enum = Multiplication;
       break;
     // Division
     default:
-      operation_string = "/";
+      operation_enum = Division;
       break; 
   }
   first_operand = false;
-  if (first_operand) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "First operand after operation");
-  } else {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Second operand after operation");
-  }
   window_stack_pop(true);
 }
 

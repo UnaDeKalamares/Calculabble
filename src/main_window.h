@@ -1,7 +1,8 @@
 #pragma once
 #include <pebble.h>
+#include "operation_window.h"
 
-char *operation_string;
+int operation_enum;
 bool first_operand;
 
 void main_window_push();

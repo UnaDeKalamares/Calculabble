@@ -10,6 +10,54 @@
     "resources": {
         "media": [
             {
+                "file": "images/division_black.png",
+                "name": "DIVISION_BLACK",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/multiplication_black.png",
+                "name": "MULTIPLICATION_BLACK",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/subtraction_black.png",
+                "name": "SUBTRACTION_BLACK",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/addition_black.png",
+                "name": "ADDITION_BLACK",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/division.png",
+                "name": "DIVISION",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/multiplication.png",
+                "name": "MULTIPLICATION",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/subtraction.png",
+                "name": "SUBTRACTION",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/addition.png",
+                "name": "ADDITION",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
                 "file": "images/operation.png",
                 "name": "OPERATION",
                 "targetPlatforms": null,

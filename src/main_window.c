@@ -1,13 +1,12 @@
 #include "main_window.h"
 #include "utils.h"
-#include "operation_window.h"
 
 static Window *window;
 
 static TextLayer *first_operand_text_layer;
 static char *first_operand_string;
 
-static TextLayer *operation_text_layer;
+static BitmapLayer *operation_bitmap_layer;
 
 static TextLayer *second_operand_text_layer;
 static char *second_operand_string;
@@ -31,7 +30,7 @@ static void window_load() {
         
   // Create first operand text layer
 	first_operand_text_layer = text_layer_create((GRect) {
-    .origin = {0, 0},
+    .origin = {0, bounds.size.h / 6},
     .size = {bounds.size.w - ACTION_BAR_WIDTH, bounds.size.h / 3}
   });
   
@@ -41,22 +40,15 @@ static void window_load() {
 
 	// Add the text layer to the window
 	layer_add_child(window_get_root_layer(window), text_layer_get_layer(first_operand_text_layer));
-  
-  // Enable text flow and paging on the text layer, with a slight inset of 10, for round screens
-  text_layer_enable_screen_text_flow_and_paging(first_operand_text_layer, 10);
     
-  // Create operation text layer
-	operation_text_layer = text_layer_create((GRect) {
+  // Create operation bitmap layer
+	operation_bitmap_layer = bitmap_layer_create((GRect) {
     .origin = {0, bounds.size.h / 3},
     .size = {bounds.size.w - ACTION_BAR_WIDTH, bounds.size.h / 3}
   });
   
-  // Set the font and text alignment
-	text_layer_set_font(operation_text_layer, fonts_get_system_font(FONT_KEY_LECO_20_BOLD_NUMBERS));
-	text_layer_set_text_alignment(operation_text_layer, GTextAlignmentCenter);
-
 	// Add the text layer to the window
-	layer_add_child(window_get_root_layer(window), text_layer_get_layer(operation_text_layer));
+	layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(operation_bitmap_layer));
   
   // Create second operand text layer
   second_operand_text_layer = text_layer_create((GRect) {
@@ -145,7 +137,24 @@ void set_text_current_operand() {
 static void window_appear() {
   // If we chose an operation
   if (!first_operand) {
-    text_layer_set_text(operation_text_layer, operation_string);
+    GBitmap *bitmap;
+    switch(operation_enum) {
+      case Addition:
+        bitmap = gbitmap_create_with_resource(RESOURCE_ID_ADDITION_BLACK);
+        break;
+      case Subtraction:
+        bitmap = gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION_BLACK);
+        break;
+      case Multiplication:
+        bitmap = gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION_BLACK);
+        break;
+      default:
+        bitmap = gbitmap_create_with_resource(RESOURCE_ID_DIVISION_BLACK);
+        break;
+    }
+    bitmap_layer_set_bitmap(operation_bitmap_layer, bitmap);
+    bitmap_layer_set_background_color(operation_bitmap_layer, GColorClear);
+    bitmap_layer_set_compositing_mode(operation_bitmap_layer, GCompOpSet);
   
     current_value = 0;  
     int_to_string(current_value, second_operand_string);
@@ -158,7 +167,7 @@ static void window_appear() {
 static void window_unload() {
   // Destroy the TextLayer
   text_layer_destroy(first_operand_text_layer);
-  text_layer_destroy(operation_text_layer);
+  bitmap_layer_destroy(operation_bitmap_layer);
   text_layer_destroy(second_operand_text_layer);
   action_bar_layer_destroy(action_bar_layer);
   
