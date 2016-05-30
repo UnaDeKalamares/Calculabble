@@ -16,12 +16,25 @@ static int current_value = 0;
 static ActionBarLayer *action_bar_layer;
 
 // Declare method prototypes
-void click_config_provider(void *context);
+void operation_click_config_provider(void *context);
+void result_click_config_provider(void *context);
 void increase_value_click_handler(ClickRecognizerRef recognizer, void *context);
 void add_figure_click_handler(ClickRecognizerRef recognizer, void *context);
 void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context);
 void select_operation_click_handler(ClickRecognizerRef recognizer, void *context);
+void result_click_handler(ClickRecognizerRef recognizer, void *context);
 void set_text_current_operand();
+
+static void init_operation_bitmap_layer(GRect bounds) {
+  // Create operation bitmap layer
+	operation_bitmap_layer = bitmap_layer_create((GRect) {
+    .origin = {0, bounds.size.h / 3},
+    .size = {bounds.size.w - ACTION_BAR_WIDTH, bounds.size.h / 3}
+  });
+  
+	// Add the text layer to the window
+	layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(operation_bitmap_layer));
+}
 
 // Called on .load handler event, init layout
 static void window_load() { 
@@ -42,13 +55,7 @@ static void window_load() {
 	layer_add_child(window_get_root_layer(window), text_layer_get_layer(first_operand_text_layer));
     
   // Create operation bitmap layer
-	operation_bitmap_layer = bitmap_layer_create((GRect) {
-    .origin = {0, bounds.size.h / 3},
-    .size = {bounds.size.w - ACTION_BAR_WIDTH, bounds.size.h / 3}
-  });
-  
-	// Add the text layer to the window
-	layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(operation_bitmap_layer));
+	init_operation_bitmap_layer(bounds);
   
   // Create second operand text layer
   second_operand_text_layer = text_layer_create((GRect) {
@@ -72,7 +79,7 @@ static void window_load() {
   action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_DOWN, gbitmap_create_with_resource(RESOURCE_ID_ADD_FIGURE), true);
   
   // Define click_config_provider for click handling
-  action_bar_layer_set_click_config_provider(action_bar_layer, click_config_provider);
+  action_bar_layer_set_click_config_provider(action_bar_layer, operation_click_config_provider);
   
   // Add the action bar to the window
   action_bar_layer_add_to_window(action_bar_layer, window);
@@ -92,11 +99,18 @@ static void window_load() {
 }
 
 // Define click handlers for each button interactor
-void click_config_provider(void *context) {
+void operation_click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) increase_value_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
-  window_multi_click_subscribe(BUTTON_ID_DOWN, 2, 0, 0, false, remove_figure_click_handler);
+  window_multi_click_subscribe(BUTTON_ID_DOWN, 2, 0, 0, false, (ClickHandler) remove_figure_click_handler);
   window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_operation_click_handler);
+}
+
+void result_click_config_provider(void *context) {
+  window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) increase_value_click_handler);
+  window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
+  window_multi_click_subscribe(BUTTON_ID_DOWN, 2, 0, 0, false, (ClickHandler) remove_figure_click_handler);
+  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) result_click_handler);
 }
 
 // Implement increase value handler
@@ -120,6 +134,14 @@ void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
 // Implement select operand handler
 void select_operation_click_handler(ClickRecognizerRef recognizer, void *context) {
   operation_window_push();
+}
+
+// Implement result handler
+void result_click_handler(ClickRecognizerRef recognizer, void *context) {
+  current_value = get_result(atoi(first_operand_string), operation_enum, atoi(second_operand_string));
+  first_operand = true;
+  
+  set_text_current_operand();
 }
 
 // Set current value in the correct text layer
@@ -159,6 +181,10 @@ static void window_appear() {
     current_value = 0;  
     int_to_string(current_value, second_operand_string);
     text_layer_set_text(second_operand_text_layer, second_operand_string);
+    
+    action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, gbitmap_create_with_resource(RESOURCE_ID_RESULT), true);
+    
+    action_bar_layer_set_click_config_provider(action_bar_layer, result_click_config_provider);
   }
 
 }

@@ -2,6 +2,7 @@
 
 const int MAX_VALUE = 10000000;
 
+// Source: https://gist.github.com/rageandqq/2ab31c71e5c2185e20d2
 void itoa (int value, char *result, int base)
 {
     // check that the base if valid
@@ -86,4 +87,25 @@ void int_to_string(int value, char *string) {
   } while (power(10, num_chars) < value);
       
   itoa(value, string, 10);
+}
+
+int get_result(int first_value, int operation, int second_value) {
+  switch (operation) {
+    // Addition
+    case Addition:
+      return first_value + second_value;
+    // Subtraction
+    case Subtraction:
+      return first_value - second_value;
+    // Multiplication
+    case Multiplication:
+      return first_value * second_value;
+    // Division
+    default:
+      if (second_value == 0) {
+        return 0;
+      } else {
+        return first_value / second_value;
+      }
+  }
 }

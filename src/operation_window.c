@@ -1,5 +1,6 @@
 #include "operation_window.h"
 #include "main_window.h"
+#include "utils.h"
 
 static Window *window;
 

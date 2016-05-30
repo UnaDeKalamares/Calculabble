@@ -10,6 +10,12 @@
     "resources": {
         "media": [
             {
+                "file": "images/result.png",
+                "name": "RESULT",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
                 "file": "images/division_black.png",
                 "name": "DIVISION_BLACK",
                 "targetPlatforms": null,
