@@ -8,12 +8,10 @@ static TextLayer *first_operand_text_layer;
 static char *first_operand_string;
 
 static TextLayer *operation_text_layer;
-static char operation_string[2];
 
 static TextLayer *second_operand_text_layer;
 static char *second_operand_string;
 
-static bool first_operand;
 static int current_value = 0;
 
 static ActionBarLayer *action_bar_layer;
@@ -47,6 +45,33 @@ static void window_load() {
   // Enable text flow and paging on the text layer, with a slight inset of 10, for round screens
   text_layer_enable_screen_text_flow_and_paging(first_operand_text_layer, 10);
     
+  // Create operation text layer
+	operation_text_layer = text_layer_create((GRect) {
+    .origin = {0, bounds.size.h / 3},
+    .size = {bounds.size.w - ACTION_BAR_WIDTH, bounds.size.h / 3}
+  });
+  
+  // Set the font and text alignment
+	text_layer_set_font(operation_text_layer, fonts_get_system_font(FONT_KEY_LECO_20_BOLD_NUMBERS));
+	text_layer_set_text_alignment(operation_text_layer, GTextAlignmentCenter);
+
+	// Add the text layer to the window
+	layer_add_child(window_get_root_layer(window), text_layer_get_layer(operation_text_layer));
+  
+  // Create second operand text layer
+  second_operand_text_layer = text_layer_create((GRect) {
+    .origin = {0, bounds.size.h * 2 / 3},
+    .size = {bounds.size.w - ACTION_BAR_WIDTH, bounds.size.h / 3}
+  });
+  
+  // Set the font and text alignment
+	text_layer_set_font(second_operand_text_layer, fonts_get_system_font(FONT_KEY_LECO_20_BOLD_NUMBERS));
+	text_layer_set_text_alignment(second_operand_text_layer, GTextAlignmentCenter);
+
+	// Add the text layer to the window
+	layer_add_child(window_get_root_layer(window), text_layer_get_layer(second_operand_text_layer));
+  
+  // Create action bar layer
   action_bar_layer = action_bar_layer_create();
   
   // Define action bar icons
@@ -64,12 +89,12 @@ static void window_load() {
   // Set first operand as current
   first_operand = true;
   
-  // Allocate string resources
+  // Allocate string memory
   first_operand_string = (char*) malloc(15 * sizeof(char));
-  second_operand_string = (char*) malloc(15 * sizeof(char));  
+  second_operand_string = (char*) malloc(15 * sizeof(char));
   
   // Init first_operand_string
-  first_operand_string = "0";
+  int_to_string(current_value, first_operand_string);
   text_layer_set_text(first_operand_text_layer, first_operand_string);
   
 }
@@ -105,6 +130,7 @@ void select_operation_click_handler(ClickRecognizerRef recognizer, void *context
   operation_window_push();
 }
 
+// Set current value in the correct text layer
 void set_text_current_operand() {
   if (first_operand) {
     int_to_string(current_value, first_operand_string);
@@ -115,10 +141,30 @@ void set_text_current_operand() {
   }
 }
 
+// Called when window shows up
+static void window_appear() {
+  // If we chose an operation
+  if (!first_operand) {
+    text_layer_set_text(operation_text_layer, operation_string);
+  
+    current_value = 0;  
+    int_to_string(current_value, second_operand_string);
+    text_layer_set_text(second_operand_text_layer, second_operand_string);
+  }
+
+}
+
 // Called on .unload handler event, destroy layout
 static void window_unload() {
   // Destroy the TextLayer
   text_layer_destroy(first_operand_text_layer);
+  text_layer_destroy(operation_text_layer);
+  text_layer_destroy(second_operand_text_layer);
+  action_bar_layer_destroy(action_bar_layer);
+  
+  // Dealloc resources
+  free(first_operand_string);
+  free(second_operand_string);
   
   // Destroy the Window
   window_destroy(window);
@@ -137,6 +183,9 @@ void main_window_push() {
       // Setup layout
       .load = window_load,
       
+      // Restore interface
+      .appear = window_appear,
+      
       // Release resources
       .unload = window_unload,
     });
@@ -145,5 +194,4 @@ void main_window_push() {
   // Push window to screen
   window_stack_push(window, true);
 
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "Just pushed a window!");
 }

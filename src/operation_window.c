@@ -1,4 +1,5 @@
 #include "operation_window.h"
+#include "main_window.h"
 
 static Window *window;
 
@@ -17,7 +18,7 @@ static void draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex 
       menu_cell_basic_draw(ctx, cell_layer, "Addition", NULL, NULL);
       break;
     case 1:
-      menu_cell_basic_draw(ctx, cell_layer, "Substraction", NULL, NULL);
+      menu_cell_basic_draw(ctx, cell_layer, "Subtraction", NULL, NULL);
       break;
     case 2:
       menu_cell_basic_draw(ctx, cell_layer, "Multiplication", NULL, NULL);
@@ -32,21 +33,42 @@ static int16_t get_cell_height_callback(struct MenuLayer *menu_layer, MenuIndex 
   return window_height / NUM_ROWS;
 }
 
+// Called on .unload handler event, destroy layout
+static void window_unload() {
+  // Destroy layers
+  menu_layer_destroy(operations_menu_layer);
+  
+  // Destroy the Window
+  window_destroy(window);
+  window = NULL;
+}
+
 static void select_callback(struct MenuLayer *menu_layer, MenuIndex *cell_index, void *context) {
-  //switch(cell_index->row) {
-    //case 0:
-      
-      //break;
-    //case 1:
-      
-      //break;
-    //case 2:
-      
-      //break;
-    //case 3:
-      
-      //break; 
-  //}
+  switch(cell_index->row) {
+    // Addition
+    case 0:
+      operation_string = "+";
+      break;
+    // Subtraction
+    case 1:
+      operation_string = "-";
+      break;
+    // Multiplication
+    case 2:
+      operation_string = "X";
+      break;
+    // Division
+    default:
+      operation_string = "/";
+      break; 
+  }
+  first_operand = false;
+  if (first_operand) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "First operand after operation");
+  } else {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Second operand after operation");
+  }
+  window_stack_pop(true);
 }
 
 // Called on .load handler event, init layout
@@ -70,13 +92,6 @@ static void window_load() {
       .select_click = select_callback,
   });
   layer_add_child(window_layer, menu_layer_get_layer(operations_menu_layer));
-}
-
-// Called on .unload handler event, destroy layout
-static void window_unload() {  
-  // Destroy the Window
-  window_destroy(window);
-  window = NULL;
 }
 
 void operation_window_push() {
