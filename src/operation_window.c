@@ -1,6 +1,7 @@
 #include "operation_window.h"
 #include "main_window.h"
 #include "utils.h"
+#include "localize.h"
 
 static Window *window;
 
@@ -18,30 +19,30 @@ static void draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex 
   switch(cell_index->row) {
     case 0:
       if (highlighted) {
-        menu_cell_basic_draw(ctx, cell_layer, "Addition", NULL, gbitmap_create_with_resource(RESOURCE_ID_ADDITION));
+        menu_cell_basic_draw(ctx, cell_layer, _("Addition"), NULL, gbitmap_create_with_resource(RESOURCE_ID_ADDITION));
       } else {
-        menu_cell_basic_draw(ctx, cell_layer, "Addition", NULL, gbitmap_create_with_resource(RESOURCE_ID_ADDITION_BLACK));
+        menu_cell_basic_draw(ctx, cell_layer, _("Addition"), NULL, gbitmap_create_with_resource(RESOURCE_ID_ADDITION_BLACK));
       }
       break;
     case 1:
       if (highlighted) {
-        menu_cell_basic_draw(ctx, cell_layer, "Subtraction", NULL, gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION));
+        menu_cell_basic_draw(ctx, cell_layer, _("Subtraction"), NULL, gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION));
       } else {
-        menu_cell_basic_draw(ctx, cell_layer, "Subtraction", NULL, gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION_BLACK));
+        menu_cell_basic_draw(ctx, cell_layer, _("Subtraction"), NULL, gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION_BLACK));
       }
       break;
     case 2:
       if (highlighted) {
-        menu_cell_basic_draw(ctx, cell_layer, "Mutiplication", NULL, gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION));
+        menu_cell_basic_draw(ctx, cell_layer, _("Mutiplication"), NULL, gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION));
       } else {
-        menu_cell_basic_draw(ctx, cell_layer, "Multiplication", NULL, gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION_BLACK));
+        menu_cell_basic_draw(ctx, cell_layer, _("Mutiplication"), NULL, gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION_BLACK));
       }
       break;
     case 3:
       if (highlighted) {
-        menu_cell_basic_draw(ctx, cell_layer, "Division", NULL, gbitmap_create_with_resource(RESOURCE_ID_DIVISION));
+        menu_cell_basic_draw(ctx, cell_layer, _("Division"), NULL, gbitmap_create_with_resource(RESOURCE_ID_DIVISION));
       } else {
-        menu_cell_basic_draw(ctx, cell_layer, "Division", NULL, gbitmap_create_with_resource(RESOURCE_ID_DIVISION_BLACK));
+        menu_cell_basic_draw(ctx, cell_layer, _("Division"), NULL, gbitmap_create_with_resource(RESOURCE_ID_DIVISION_BLACK));
       }
       break;
   }

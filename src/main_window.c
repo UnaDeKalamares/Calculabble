@@ -1,10 +1,6 @@
 #include "main_window.h"
 #include "utils.h"
-
-const char *division = "Division by";
-const char *zero = "zero!";
-const char *result = "Result";
-const char *too_big = "too big!";
+#include "localize.h"
   
 static Window *window;
 static GRect window_bounds;
@@ -181,7 +177,7 @@ void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
 void select_operation_click_handler(ClickRecognizerRef recognizer, void *context) {
   const char *first = text_layer_get_text(first_operand_text_layer);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "First operand = %s", first);
-  if (strcmp(first, division) == 0 || strcmp(first, result) == 0) {
+  if (strcmp(first, _("Division by")) == 0 || strcmp(first, _("Result")) == 0) {
     text_layer_set_text(first_operand_text_layer, first_operand_string);
     // Reset second operand text layer
     text_layer_set_text(second_operand_text_layer, "");
@@ -203,8 +199,8 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
   // Prevent division by zero
   if (second_operand_int == 0 && operation_enum == Division) {
     
-    text_layer_set_text(first_operand_text_layer, division);
-    text_layer_set_text(second_operand_text_layer, zero);
+    text_layer_set_text(first_operand_text_layer, _("Division by"));
+    text_layer_set_text(second_operand_text_layer, _("zero!"));
     // Restore default value for first operand
     int_to_string(0, first_operand_string);
     
@@ -216,8 +212,8 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
     // Ignore result if it's too big 
     if ( current_value > MAX_VALUE || current_value < MIN_VALUE) {
      
-      text_layer_set_text(first_operand_text_layer, result);
-      text_layer_set_text(second_operand_text_layer, too_big);
+      text_layer_set_text(first_operand_text_layer, _("Result"));
+      text_layer_set_text(second_operand_text_layer, _("too big!"));
       // Restore default value for first operand
       int_to_string(0, first_operand_string);
      

@@ -10,6 +10,18 @@
     "resources": {
         "media": [
             {
+                "file": "data/locale_english.bin",
+                "name": "LOCALE_ENGLISH",
+                "targetPlatforms": null,
+                "type": "raw"
+            },
+            {
+                "file": "data/locale_spanish.bin",
+                "name": "LOCALE_SPANISH",
+                "targetPlatforms": null,
+                "type": "raw"
+            },
+            {
                 "file": "images/result.png",
                 "name": "RESULT",
                 "targetPlatforms": null,
