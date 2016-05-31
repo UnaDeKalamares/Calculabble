@@ -97,6 +97,10 @@ static void window_load() {
   menu_layer_set_click_config_onto_window(operations_menu_layer, window);
   menu_layer_pad_bottom_enable(operations_menu_layer, false);
   
+  #ifdef PBL_COLOR
+    menu_layer_set_highlight_colors (operations_menu_layer, GColorVividCerulean, GColorWhite);
+  #endif
+  
   // Define menu callbacks
   menu_layer_set_callbacks(operations_menu_layer, NULL, (MenuLayerCallbacks) {
       .get_num_rows = get_num_rows_callback,
