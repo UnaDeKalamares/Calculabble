@@ -16,6 +16,8 @@ static TextLayer *second_operand_text_layer;
 static char *second_operand_string;
 
 static int current_value = 0;
+static int current_num_decimals = 0;
+static int current_decimals = 0;
 
 static int left_margin = 0;
 
@@ -27,6 +29,7 @@ void result_click_config_provider(void *context);
 void increase_value_click_handler(ClickRecognizerRef recognizer, void *context);
 void add_figure_click_handler(ClickRecognizerRef recognizer, void *context);
 void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context);
+void add_point_click_handler(ClickRecognizerRef recognizer, void *context);
 void select_operation_click_handler(ClickRecognizerRef recognizer, void *context);
 void result_click_handler(ClickRecognizerRef recognizer, void *context);
 void set_text_current_operand();
@@ -134,7 +137,7 @@ static void window_load() {
   second_operand_string = (char*) malloc(15 * sizeof(char));
   
   // Init first_operand_string
-  int_to_string(current_value, first_operand_string);
+  int_to_string(current_value, current_num_decimals, current_decimals, first_operand_string);
   text_layer_set_text(first_operand_text_layer, first_operand_string);
   
 }
@@ -144,6 +147,7 @@ void operation_click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) increase_value_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
   window_multi_click_subscribe(BUTTON_ID_DOWN, 2, 0, 0, false, (ClickHandler) remove_figure_click_handler);
+  window_long_click_subscribe(BUTTON_ID_DOWN, 0, (ClickHandler) add_point_click_handler, NULL);
   window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_operation_click_handler);
 }
 
@@ -152,25 +156,50 @@ void result_click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) increase_value_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
   window_multi_click_subscribe(BUTTON_ID_DOWN, 2, 0, 0, false, (ClickHandler) remove_figure_click_handler);
+  window_long_click_subscribe(BUTTON_ID_DOWN, 0, (ClickHandler) add_point_click_handler, NULL);
   window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) result_click_handler);
 }
 
 // Implement increase value handler
 void increase_value_click_handler(ClickRecognizerRef recognizer, void *context) {
-  current_value = increase_value(current_value);
+  if (current_num_decimals > 0) {
+    current_decimals = increase_value(current_decimals);
+  } else {
+    current_value = increase_value(current_value);
+  }
   set_text_current_operand();
 }
 
 // Implement add figure handler
 void add_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
-  current_value = add_figure(current_value);
+  if (current_num_decimals > 0) {
+    if (current_num_decimals < MAX_DECIMALS) {
+      current_num_decimals++;
+      current_decimals = add_figure(current_decimals);
+    }
+  } else {
+    current_value = add_figure(current_value);
+  }
   set_text_current_operand();
 }
 
 // Implement remove figure handler
 void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
-  current_value = remove_figure(current_value);
+  if (current_num_decimals > 0) {
+    current_decimals = remove_figure(current_decimals);
+    current_num_decimals--;
+  } else {
+    current_value = remove_figure(current_value);
+  }
   set_text_current_operand();
+}
+
+// Implement add point handler
+void add_point_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if (current_num_decimals == 0) {
+    current_num_decimals++;
+    set_text_current_operand();
+  }
 }
 
 // Implement select operand handler
@@ -202,7 +231,7 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
     text_layer_set_text(first_operand_text_layer, _("Division by"));
     text_layer_set_text(second_operand_text_layer, _("zero!"));
     // Restore default value for first operand
-    int_to_string(0, first_operand_string);
+    int_to_string(0, 0, 0, first_operand_string);
     
   } else {
     
@@ -215,7 +244,7 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
       text_layer_set_text(first_operand_text_layer, _("Result"));
       text_layer_set_text(second_operand_text_layer, _("too big!"));
       // Restore default value for first operand
-      int_to_string(0, first_operand_string);
+      int_to_string(0, 0, 0, first_operand_string);
      
     } else {
      
@@ -247,10 +276,10 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
 // Set current value in the correct text layer
 void set_text_current_operand() {
   if (first_operand) {
-    int_to_string(current_value, first_operand_string);
+    int_to_string(current_value, current_num_decimals, current_decimals, first_operand_string);
     text_layer_set_text(first_operand_text_layer, first_operand_string);
   } else {
-    int_to_string(current_value, second_operand_string);
+    int_to_string(current_value, current_num_decimals, current_decimals, second_operand_string);
     text_layer_set_text(second_operand_text_layer, second_operand_string);
   }
 }
@@ -285,8 +314,10 @@ static void window_appear() {
     bitmap_layer_set_compositing_mode(operation_bitmap_layer, GCompOpSet);
   
     // Set second operand text layer value
-    current_value = 0;  
-    int_to_string(current_value, second_operand_string);
+    current_value = 0;
+    current_num_decimals = 0;
+    current_decimals = 0;
+    int_to_string(current_value, current_num_decimals, current_decimals, second_operand_string);
     text_layer_set_text(second_operand_text_layer, second_operand_string);
     
     // Replace action bar select button icon
