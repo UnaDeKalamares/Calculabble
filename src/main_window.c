@@ -46,7 +46,7 @@ static void window_load() {
         
   // Create first operand text layer
 	first_operand_text_layer = text_layer_create((GRect) {
-    .origin = {0, bounds.size.h / 6},
+    .origin = {0, bounds.size.h / 9},
     .size = {bounds.size.w - ACTION_BAR_WIDTH, bounds.size.h / 3}
   });
   
