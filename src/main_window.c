@@ -237,6 +237,7 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
         
     // Perform calculation
     int extended_current_value = get_result(first_operand_int,  operation_enum, second_operand_int);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "extended_current_value = %d", extended_current_value);
     
     extended_to_components(extended_current_value, &current_value, &current_num_decimals, &current_decimals);
     

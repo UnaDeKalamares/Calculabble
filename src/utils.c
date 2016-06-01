@@ -70,17 +70,17 @@ int find_char(char *string, char char_to_find) {
 }
 
 void itoa (int value, int num_decimals, int decimals, char *result) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "value = %d, num_decimals = %d, decimals = %d", value, num_decimals, decimals);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "value = %d, num_decimals = %d, decimals = %d", value, num_decimals, decimals);  
   char *ptr = result, *ptr1 = result, tmp_char;
-  int tmp_value, tmp_decimals;
+  int tmp_value = 0, tmp_decimals = 0;
 
   while (num_decimals > 0) {
 
     tmp_decimals = decimals % 10;
 
-    *ptr++ = tmp_decimals + '0';
+    *ptr++ = abs(tmp_decimals) + '0';
 
-    if (decimals % power(10, num_decimals) < power(10, num_decimals - 1) && decimals != 0) {
+    if (abs(decimals) % power(10, num_decimals) < power(10, num_decimals - 1) && abs(decimals) != 0) {
 
       *ptr++ = '0';
       num_decimals--;
@@ -100,15 +100,13 @@ void itoa (int value, int num_decimals, int decimals, char *result) {
 
     tmp_value = value % 10;   
     value /= 10;
-
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "value = %d, tmp_value = %d", value, tmp_value);
     
     *ptr++ = abs(tmp_value) + '0';
       
   } while ( value );   
 
   // Apply negative sign
-  if (tmp_value < 0) *ptr++ = '-';
+  if (tmp_value < 0 || tmp_decimals < 0) *ptr++ = '-';
   *ptr-- = '\0';
   while (ptr1 < ptr) {
     tmp_char = *ptr;
@@ -153,31 +151,51 @@ int string_to_extended(char *operand) {
 
   int exp = 1;
   bool point = false;
+  bool negative = false;
   for (int i = 0 ; i < operand_length; i++) {
+    
     char current_char = operand[i];
+        
     if (current_char != '.') {
-      // Get char as int
-      int current_int = current_char - '0';
-      result += current_int * power(10, operand_length - exp);
+      
+      if (current_char == '-') {
+        
+        negative = true;
+        
+      } else {
+        
+        // Get char as int
+        int current_int = current_char - '0';
+        result += current_int * power(10, operand_length - exp);
+        
+      }
+      
     } else {
+      
       exp--;
       point = true;
+      
     }
+    
     exp++;
+    
   }
   
   if (point) {
     result /= 10;
   }
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "String = %s, Extended = %d", operand, result);
+  if (negative) {
+    result *= -1;
+  }
+    
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "result = %d", result);  
   
   return result;
   
 }
 
 void extended_to_components(int extended, int *value, int *num_decimals, int *decimals) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "extended = %d", extended);
   *value = 0;
   *num_decimals = 0;
   *decimals = 0;
@@ -192,13 +210,10 @@ void extended_to_components(int extended, int *value, int *num_decimals, int *de
       *decimals += (extended % 10) * power(10, exp);
       extended /= 10;
       *num_decimals += 1;
-      
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "Step %d, decimals = %d", i, *decimals);
+    
             
     } else if (i == MAX_DECIMALS) {
-      
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "Step %d, decimals = %d", i, *decimals);
-      
+            
       exp = -1;      
       if (*decimals == 0) {
         *num_decimals = 0;
@@ -209,8 +224,6 @@ void extended_to_components(int extended, int *value, int *num_decimals, int *de
       *value += (extended % 10) * power(10, exp);
       extended /= 10;
       
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "Step %d, value = %d", i, *value);
-            
     }
     
     i++;
@@ -221,7 +234,8 @@ void extended_to_components(int extended, int *value, int *num_decimals, int *de
 }
 
 int get_result(int first_value, int operation, int second_value) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "first_value = %d, second_value = %d", first_value, second_value);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "first_value = %d, second_value = %d", first_value, second_value);  
+  
   switch (operation) {
     // Addition
     case Addition:
