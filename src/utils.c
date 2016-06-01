@@ -244,13 +244,13 @@ int get_result(int first_value, int operation, int second_value) {
       return first_value - second_value;
     // Multiplication
     case Multiplication:
-      return first_value * second_value;
+      return (first_value * second_value) / 100;
     // Division
     default:
       if (second_value == 0) {
         return 0;
       } else {
-        return first_value / second_value;
+        return (first_value * 100 / second_value);
       }
   }
 }
