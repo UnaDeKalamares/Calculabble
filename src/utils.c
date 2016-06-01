@@ -69,16 +69,19 @@ int find_char(char *string, char char_to_find) {
   }
 }
 
-void itoa (int value, int num_decimals, int decimals, char *result) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "value = %d, num_decimals = %d, decimals = %d", value, num_decimals, decimals);  
+void itoa (int value, int num_decimals, int decimals, char *result) {  
   char *ptr = result, *ptr1 = result, tmp_char;
   int tmp_value = 0, tmp_decimals = 0;
+  bool is_trailing = true;
 
   while (num_decimals > 0) {
 
     tmp_decimals = decimals % 10;
 
-    *ptr++ = abs(tmp_decimals) + '0';
+    if (tmp_decimals != 0 || !is_trailing) {
+      *ptr++ = abs(tmp_decimals) + '0';
+      is_trailing = false;
+    }
 
     if (abs(decimals) % power(10, num_decimals) < power(10, num_decimals - 1) && abs(decimals) != 0) {
 
@@ -188,8 +191,6 @@ int string_to_extended(char *operand) {
   if (negative) {
     result *= -1;
   }
-    
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "result = %d", result);  
   
   return result;
   
@@ -233,9 +234,7 @@ void extended_to_components(int extended, int *value, int *num_decimals, int *de
 
 }
 
-int get_result(int first_value, int operation, int second_value) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "first_value = %d, second_value = %d", first_value, second_value);  
-  
+int get_result(int first_value, int operation, int second_value) {  
   switch (operation) {
     // Addition
     case Addition:
