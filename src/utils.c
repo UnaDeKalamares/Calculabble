@@ -47,65 +47,181 @@ int remove_figure(int value) {
   }
 }
 
-// Source: https://gist.github.com/rageandqq/2ab31c71e5c2185e20d2
-void itoa (int value, int num_decimals, int decimals, char *result, int base)
-{
-    // check that the base if valid
-    if (base < 2 || base > 36) { *result = '\0'; }
-
-    char *ptr = result, *ptr1 = result, tmp_char;
-    int tmp_value, tmp_decimals;
-    bool point = false;
+int find_char(char *string, char char_to_find) {
+  char* ptr = string;
+  int occurence = -1;
+  bool found = false;
   
-    while (num_decimals > 0) {
-            
-      if (decimals % power(10, num_decimals) < power(10, num_decimals - 1)) {
-        
-        *ptr++ = "0"[0];
-        
-      } else {
-        
-        tmp_decimals = decimals;
-        decimals /= base;
-        
-        *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_decimals - decimals * base)];
-        
-      }
-      
-      num_decimals--;
-      
-      if (num_decimals == 0 && !point) {
-        *ptr++ = "."[0];
-        point = true;
-      }
-      
-    }  
-  
-    do {
-      
-        tmp_value = value;
-        value /= base;
-            
-        *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * base)];
-      
-    } while ( value );   
-
-    // Apply negative sign
-    if (tmp_value < 0) *ptr++ = '-';
-    *ptr-- = '\0';
-    while (ptr1 < ptr) {
-        tmp_char = *ptr;
-        *ptr--= *ptr1;
-        *ptr1++ = tmp_char;
+  while (*ptr != '\0' && !found) {
+    
+    occurence++;
+    if (*ptr == char_to_find) {
+      found = true;
     }
+    ptr++;
+    
+  }
+  
+  if (found) {
+    return occurence;
+  } else {
+    return -1;
+  }
+}
+
+void itoa (int value, int num_decimals, int decimals, char *result) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "value = %d, num_decimals = %d, decimals = %d", value, num_decimals, decimals);
+  char *ptr = result, *ptr1 = result, tmp_char;
+  int tmp_value, tmp_decimals;
+
+  while (num_decimals > 0) {
+
+    tmp_decimals = decimals % 10;
+
+    *ptr++ = tmp_decimals + '0';
+
+    if (decimals % power(10, num_decimals) < power(10, num_decimals - 1) && decimals != 0) {
+
+      *ptr++ = '0';
+      num_decimals--;
+
+    }
+    
+    decimals /= 10;
+    num_decimals--;
+
+    if (num_decimals == 0) {
+      *ptr++ = '.';
+    }
+
+  }  
+
+  do {
+
+    tmp_value = value % 10;   
+    value /= 10;
+
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "value = %d, tmp_value = %d", value, tmp_value);
+    
+    *ptr++ = abs(tmp_value) + '0';
+      
+  } while ( value );   
+
+  // Apply negative sign
+  if (tmp_value < 0) *ptr++ = '-';
+  *ptr-- = '\0';
+  while (ptr1 < ptr) {
+    tmp_char = *ptr;
+    *ptr--= *ptr1;
+    *ptr1++ = tmp_char;
+  }
 
 }
 
-void int_to_string(int value, int num_decimals, int decimals, char *string) {
-  itoa(value, num_decimals, decimals, string, 10);
+int string_to_extended(char *operand) {  
+  int result = 0;
+  int operand_length = strlen(operand);
+  
+  // Find position of point in first operand
+  int point_position = find_char(operand, '.');
+    
+  // In case there's no point, append decimals
+  if (point_position == -1) {
+    
+    strcat(operand, ".00");
+    
+  // If there's point, calculate num of decimals  
+  } else {
+    
+    char *decimals = (char*) malloc((operand_length - point_position) * sizeof(char));
+        
+    char *aux = decimals;
+    for (int i = point_position + 1; i < operand_length; i++) {
+      *aux++ = operand[i];
+    }
+    *aux = '\0';
+    
+    if (strlen(decimals) < MAX_DECIMALS) {
+      strcat(operand, "0");
+    }
+    
+    free(decimals);
+    
+  }
+  
+  operand_length = strlen(operand);
+
+  int exp = 1;
+  bool point = false;
+  for (int i = 0 ; i < operand_length; i++) {
+    char current_char = operand[i];
+    if (current_char != '.') {
+      // Get char as int
+      int current_int = current_char - '0';
+      result += current_int * power(10, operand_length - exp);
+    } else {
+      exp--;
+      point = true;
+    }
+    exp++;
+  }
+  
+  if (point) {
+    result /= 10;
+  }
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "String = %s, Extended = %d", operand, result);
+  
+  return result;
+  
+}
+
+void extended_to_components(int extended, int *value, int *num_decimals, int *decimals) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "extended = %d", extended);
+  *value = 0;
+  *num_decimals = 0;
+  *decimals = 0;
+  
+  int i = 0;
+  
+  int exp = 0;
+  while (extended != 0) {
+
+    if (i < MAX_DECIMALS) {
+      
+      *decimals += (extended % 10) * power(10, exp);
+      extended /= 10;
+      *num_decimals += 1;
+      
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Step %d, decimals = %d", i, *decimals);
+            
+    } else if (i == MAX_DECIMALS) {
+      
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Step %d, decimals = %d", i, *decimals);
+      
+      exp = -1;      
+      if (*decimals == 0) {
+        *num_decimals = 0;
+      }
+                
+    } else {
+      
+      *value += (extended % 10) * power(10, exp);
+      extended /= 10;
+      
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Step %d, value = %d", i, *value);
+            
+    }
+    
+    i++;
+    exp++;
+    
+  }
+
 }
 
 int get_result(int first_value, int operation, int second_value) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "first_value = %d, second_value = %d", first_value, second_value);
   switch (operation) {
     // Addition
     case Addition:

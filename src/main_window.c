@@ -137,7 +137,7 @@ static void window_load() {
   second_operand_string = (char*) malloc(15 * sizeof(char));
   
   // Init first_operand_string
-  int_to_string(current_value, current_num_decimals, current_decimals, first_operand_string);
+  itoa(current_value, current_num_decimals, current_decimals, first_operand_string);
   text_layer_set_text(first_operand_text_layer, first_operand_string);
   
 }
@@ -205,7 +205,6 @@ void add_point_click_handler(ClickRecognizerRef recognizer, void *context) {
 // Implement select operand handler
 void select_operation_click_handler(ClickRecognizerRef recognizer, void *context) {
   const char *first = text_layer_get_text(first_operand_text_layer);
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "First operand = %s", first);
   if (strcmp(first, _("Division by")) == 0 || strcmp(first, _("Result")) == 0) {
     text_layer_set_text(first_operand_text_layer, first_operand_string);
     // Reset second operand text layer
@@ -217,9 +216,10 @@ void select_operation_click_handler(ClickRecognizerRef recognizer, void *context
 
 // Implement result handler
 void result_click_handler(ClickRecognizerRef recognizer, void *context) {
+    
   // Get operands as ints
-  int first_operand_int = atoi(first_operand_string);
-  int second_operand_int = atoi(second_operand_string);
+  int first_operand_int = string_to_extended(first_operand_string);
+  int second_operand_int = string_to_extended(second_operand_string);
   
   // Reset window
   // Set first operand as current
@@ -231,22 +231,24 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
     text_layer_set_text(first_operand_text_layer, _("Division by"));
     text_layer_set_text(second_operand_text_layer, _("zero!"));
     // Restore default value for first operand
-    int_to_string(0, 0, 0, first_operand_string);
+    itoa(0, 0, 0, first_operand_string);
     
   } else {
-    
-    // Perform calculation
-    current_value = get_result(first_operand_int, operation_enum, second_operand_int);
         
+    // Perform calculation
+    int extended_current_value = get_result(first_operand_int,  operation_enum, second_operand_int);
+    
+    extended_to_components(extended_current_value, &current_value, &current_num_decimals, &current_decimals);
+    
     // Ignore result if it's too big 
-    if ( current_value > MAX_VALUE || current_value < MIN_VALUE) {
+//    if ( current_value > MAX_VALUE || current_value < MIN_VALUE) {
      
-      text_layer_set_text(first_operand_text_layer, _("Result"));
-      text_layer_set_text(second_operand_text_layer, _("too big!"));
+//      text_layer_set_text(first_operand_text_layer, _("Result"));
+//      text_layer_set_text(second_operand_text_layer, _("too big!"));
       // Restore default value for first operand
-      int_to_string(0, 0, 0, first_operand_string);
+//      itoa(0, 0, 0, first_operand_string);
      
-    } else {
+//    } else {
      
       // Set calculation result as first operand
       set_text_current_operand();
@@ -254,12 +256,14 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
       // Reset second operand text layer
       text_layer_set_text(second_operand_text_layer, "");
      
-    }
+//    }
     
   }
   
   // Restore current value
   current_value = 0;
+  current_num_decimals = 0;
+  current_decimals = 0;
   
   // Remove bitmap (necessary dealloc and alloc)
   layer_remove_from_parent(bitmap_layer_get_layer(operation_bitmap_layer));
@@ -276,10 +280,10 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
 // Set current value in the correct text layer
 void set_text_current_operand() {
   if (first_operand) {
-    int_to_string(current_value, current_num_decimals, current_decimals, first_operand_string);
+    itoa(current_value, current_num_decimals, current_decimals, first_operand_string);
     text_layer_set_text(first_operand_text_layer, first_operand_string);
   } else {
-    int_to_string(current_value, current_num_decimals, current_decimals, second_operand_string);
+    itoa(current_value, current_num_decimals, current_decimals, second_operand_string);
     text_layer_set_text(second_operand_text_layer, second_operand_string);
   }
 }
@@ -317,7 +321,7 @@ static void window_appear() {
     current_value = 0;
     current_num_decimals = 0;
     current_decimals = 0;
-    int_to_string(current_value, current_num_decimals, current_decimals, second_operand_string);
+    itoa(current_value, current_num_decimals, current_decimals, second_operand_string);
     text_layer_set_text(second_operand_text_layer, second_operand_string);
     
     // Replace action bar select button icon
