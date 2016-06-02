@@ -7,6 +7,11 @@ static Window *window;
 
 static MenuLayer *operations_menu_layer;
 
+static GBitmap *addition_bitmap;
+static GBitmap *subtraction_bitmap;
+static GBitmap *multiplication_bitmap;
+static GBitmap *division_bitmap;
+
 static int window_height;
 
 // Implement menu layer num rows callback
@@ -17,33 +22,51 @@ static uint16_t get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_in
 static void draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *context) {
   bool highlighted = menu_cell_layer_is_highlighted(cell_layer);
   switch(cell_index->row) {
+    // Allocate each row's bitmap depending if the row is highlighted
+    // First, dealloc if it isn't null
     case 0:
-      if (highlighted) {
-        menu_cell_basic_draw(ctx, cell_layer, _("Addition"), NULL, gbitmap_create_with_resource(RESOURCE_ID_ADDITION));
-      } else {
-        menu_cell_basic_draw(ctx, cell_layer, _("Addition"), NULL, gbitmap_create_with_resource(RESOURCE_ID_ADDITION_BLACK));
+      if (!addition_bitmap) {
+        gbitmap_destroy(addition_bitmap);
       }
+      if (highlighted) {
+        addition_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ADDITION);
+      } else {
+        addition_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ADDITION_BLACK);
+      }
+      menu_cell_basic_draw(ctx, cell_layer, _("Addition"), NULL, addition_bitmap);
       break;
     case 1:
-      if (highlighted) {
-        menu_cell_basic_draw(ctx, cell_layer, _("Subtraction"), NULL, gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION));
-      } else {
-        menu_cell_basic_draw(ctx, cell_layer, _("Subtraction"), NULL, gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION_BLACK));
+      if (!subtraction_bitmap) {
+        gbitmap_destroy(subtraction_bitmap);
       }
+      if (highlighted) {
+        subtraction_bitmap = gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION);
+      } else {
+        subtraction_bitmap = gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION_BLACK);
+      }
+      menu_cell_basic_draw(ctx, cell_layer, _("Subtraction"), NULL, subtraction_bitmap);
       break;
     case 2:
+      if (!multiplication_bitmap) {
+        gbitmap_destroy(multiplication_bitmap);
+      }    
       if (highlighted) {
-        menu_cell_basic_draw(ctx, cell_layer, _("Mutiplication"), NULL, gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION));
+        multiplication_bitmap = gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION);
       } else {
-        menu_cell_basic_draw(ctx, cell_layer, _("Mutiplication"), NULL, gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION_BLACK));
+        multiplication_bitmap = gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION_BLACK);
       }
+      menu_cell_basic_draw(ctx, cell_layer, _("Mutiplication"), NULL, multiplication_bitmap);
       break;
     case 3:
+      if (!division_bitmap) {
+        gbitmap_destroy(division_bitmap);
+      }     
       if (highlighted) {
-        menu_cell_basic_draw(ctx, cell_layer, _("Division"), NULL, gbitmap_create_with_resource(RESOURCE_ID_DIVISION));
+        division_bitmap = gbitmap_create_with_resource(RESOURCE_ID_DIVISION);
       } else {
-        menu_cell_basic_draw(ctx, cell_layer, _("Division"), NULL, gbitmap_create_with_resource(RESOURCE_ID_DIVISION_BLACK));
+        division_bitmap = gbitmap_create_with_resource(RESOURCE_ID_DIVISION_BLACK);        
       }
+      menu_cell_basic_draw(ctx, cell_layer, _("Division"), NULL, division_bitmap);    
       break;
   }
 }
@@ -56,6 +79,12 @@ static int16_t get_cell_height_callback(struct MenuLayer *menu_layer, MenuIndex 
 static void window_unload() {
   // Destroy layers
   menu_layer_destroy(operations_menu_layer);
+  
+  // Destroy bitmaps
+  gbitmap_destroy(addition_bitmap);
+  gbitmap_destroy(subtraction_bitmap);
+  gbitmap_destroy(multiplication_bitmap);
+  gbitmap_destroy(division_bitmap);  
   
   // Destroy the Window
   window_destroy(window);

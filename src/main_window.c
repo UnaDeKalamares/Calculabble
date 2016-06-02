@@ -11,6 +11,7 @@ static TextLayer *first_operand_text_layer;
 static char *first_operand_string;
 
 static BitmapLayer *operation_bitmap_layer;
+static GBitmap *operation_bitmap;
 
 static TextLayer *second_operand_text_layer;
 static char *second_operand_string;
@@ -22,6 +23,9 @@ static int current_decimals = 0;
 static int left_margin = 0;
 
 static ActionBarLayer *action_bar_layer;
+static GBitmap *up_bitmap;
+static GBitmap *select_bitmap;
+static GBitmap *down_bitmap;
 
 // Declare method prototypes
 void operation_click_config_provider(void *context);
@@ -118,9 +122,12 @@ static void window_load() {
   action_bar_layer = action_bar_layer_create();
   
   // Define action bar icons
-  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_UP, gbitmap_create_with_resource(RESOURCE_ID_INCREASE), true);
-  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, gbitmap_create_with_resource(RESOURCE_ID_OPERATION), true);
-  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_DOWN, gbitmap_create_with_resource(RESOURCE_ID_ADD_FIGURE), true);
+  up_bitmap = gbitmap_create_with_resource(RESOURCE_ID_INCREASE);
+  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_UP, up_bitmap, true);
+  select_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OPERATION);
+  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, select_bitmap, true);
+  down_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ADD_FIGURE);
+  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_DOWN, down_bitmap, true);
   
   // Define click_config_provider for click handling
   action_bar_layer_set_click_config_provider(action_bar_layer, operation_click_config_provider);
@@ -271,7 +278,11 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
   init_operation_bitmap_layer();
   
   // Restore select button icon
-  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, gbitmap_create_with_resource(RESOURCE_ID_OPERATION), true);
+  if (!select_bitmap) {
+    gbitmap_destroy(select_bitmap);
+  }
+  select_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OPERATION);
+  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, select_bitmap, true);
   
   // Restore action bar click config provider
   action_bar_layer_set_click_config_provider(action_bar_layer, operation_click_config_provider);
@@ -293,25 +304,28 @@ static void window_appear() {
   // If we chose an operation
   if (!first_operand) {
     
+    // Release if not null
+    if (!operation_bitmap) {
+      gbitmap_destroy(operation_bitmap);
+    }
     // Init bitmap
-    GBitmap *bitmap;
     switch(operation_enum) {
       case Addition:
-      bitmap = gbitmap_create_with_resource(RESOURCE_ID_ADDITION);
+      operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ADDITION);
       break;
       case Subtraction:
-      bitmap = gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION);
+      operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION);
       break;
       case Multiplication:
-      bitmap = gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION);
+      operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION);
       break;
       default:
-      bitmap = gbitmap_create_with_resource(RESOURCE_ID_DIVISION);
+      operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_DIVISION);
       break;
     }
     
     // Set operation bitmap
-    bitmap_layer_set_bitmap(operation_bitmap_layer, bitmap);
+    bitmap_layer_set_bitmap(operation_bitmap_layer, operation_bitmap);
     // Change bitmap layer background color to transparent
     bitmap_layer_set_background_color(operation_bitmap_layer, GColorClear);
     // Set bitmap composition to use transparent background
@@ -325,7 +339,11 @@ static void window_appear() {
     text_layer_set_text(second_operand_text_layer, second_operand_string);
     
     // Replace action bar select button icon
-    action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, gbitmap_create_with_resource(RESOURCE_ID_RESULT), true);
+    if (!select_bitmap) {
+      gbitmap_destroy(select_bitmap);
+    }
+    select_bitmap = gbitmap_create_with_resource(RESOURCE_ID_RESULT);
+    action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, select_bitmap, true);
     
     // Replace action bar click config provider
     action_bar_layer_set_click_config_provider(action_bar_layer, result_click_config_provider);
@@ -344,6 +362,10 @@ static void window_unload() {
   // Dealloc resources
   free(first_operand_string);
   free(second_operand_string);
+  gbitmap_destroy(operation_bitmap);
+  gbitmap_destroy(up_bitmap);
+  gbitmap_destroy(select_bitmap);
+  gbitmap_destroy(down_bitmap);
   
   // Destroy the Window
   window_destroy(window);
