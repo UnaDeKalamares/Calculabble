@@ -69,7 +69,7 @@ int find_char(char *string, char char_to_find) {
   }
 }
 
-void itoa (int value, int num_decimals, int decimals, char *result) {  
+void itoa (bool is_result, int value, int num_decimals, int decimals, char *result) {  
   char *ptr = result, *ptr1 = result, tmp_char;
   int tmp_value = 0, tmp_decimals = 0;
   bool is_trailing = true;
@@ -77,8 +77,9 @@ void itoa (int value, int num_decimals, int decimals, char *result) {
   while (num_decimals > 0) {
 
     tmp_decimals = decimals % 10;
-
-    if (tmp_decimals != 0 || !is_trailing) {
+    
+    // Remove trailing zeros when formatting an operation result
+    if (!is_result || tmp_decimals != 0 || !is_trailing) {
       *ptr++ = abs(tmp_decimals) + '0';
       is_trailing = false;
     }

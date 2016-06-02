@@ -36,7 +36,7 @@ void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context);
 void add_point_click_handler(ClickRecognizerRef recognizer, void *context);
 void select_operation_click_handler(ClickRecognizerRef recognizer, void *context);
 void result_click_handler(ClickRecognizerRef recognizer, void *context);
-void set_text_current_operand();
+void set_text_current_operand(bool is_result);
 
 static void init_operation_bitmap_layer() {
   // Create operation bitmap layer
@@ -144,7 +144,7 @@ static void window_load() {
   second_operand_string = (char*) malloc(15 * sizeof(char));
   
   // Init first_operand_string
-  itoa(current_value, current_num_decimals, current_decimals, first_operand_string);
+  itoa(false, current_value, current_num_decimals, current_decimals, first_operand_string);
   text_layer_set_text(first_operand_text_layer, first_operand_string);
   
 }
@@ -174,7 +174,7 @@ void increase_value_click_handler(ClickRecognizerRef recognizer, void *context) 
   } else {
     current_value = increase_value(current_value);
   }
-  set_text_current_operand();
+  set_text_current_operand(false);
 }
 
 // Implement add figure handler
@@ -187,7 +187,7 @@ void add_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
   } else {
     current_value = add_figure(current_value);
   }
-  set_text_current_operand();
+  set_text_current_operand(false);
 }
 
 // Implement remove figure handler
@@ -198,14 +198,14 @@ void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
   } else {
     current_value = remove_figure(current_value);
   }
-  set_text_current_operand();
+  set_text_current_operand(false);
 }
 
 // Implement add point handler
 void add_point_click_handler(ClickRecognizerRef recognizer, void *context) {
   if (current_num_decimals == 0) {
     current_num_decimals++;
-    set_text_current_operand();
+    set_text_current_operand(false);
   }
 }
 
@@ -238,7 +238,7 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
     text_layer_set_text(first_operand_text_layer, _("Division by"));
     text_layer_set_text(second_operand_text_layer, _("zero!"));
     // Restore default value for first operand
-    itoa(0, 0, 0, first_operand_string);
+    itoa(false, 0, 0, 0, first_operand_string);
     
   } else {
         
@@ -258,7 +258,7 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
 //    } else {
      
       // Set calculation result as first operand
-      set_text_current_operand();
+      set_text_current_operand(true);
       
       // Reset second operand text layer
       text_layer_set_text(second_operand_text_layer, "");
@@ -289,12 +289,12 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
 }
 
 // Set current value in the correct text layer
-void set_text_current_operand() {
+void set_text_current_operand(bool is_result) {
   if (first_operand) {
-    itoa(current_value, current_num_decimals, current_decimals, first_operand_string);
+    itoa(is_result, current_value, current_num_decimals, current_decimals, first_operand_string);
     text_layer_set_text(first_operand_text_layer, first_operand_string);
   } else {
-    itoa(current_value, current_num_decimals, current_decimals, second_operand_string);
+    itoa(is_result, current_value, current_num_decimals, current_decimals, second_operand_string);
     text_layer_set_text(second_operand_text_layer, second_operand_string);
   }
 }
@@ -335,7 +335,7 @@ static void window_appear() {
     current_value = 0;
     current_num_decimals = 0;
     current_decimals = 0;
-    itoa(current_value, current_num_decimals, current_decimals, second_operand_string);
+    itoa(false, current_value, current_num_decimals, current_decimals, second_operand_string);
     text_layer_set_text(second_operand_text_layer, second_operand_string);
     
     // Replace action bar select button icon
