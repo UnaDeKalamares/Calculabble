@@ -252,10 +252,8 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
     // Subtraction
     case Subtraction:
       // Check operand signs
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "first_value = %d; second_value = %d", first_value, second_value);
       if ((first_value > 0) == (second_value > 0)) {
         // Check for overflow
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "%d - %d = %d", first_value, second_value, first_value - second_value);
         if (first_value - second_value < MIN_VALUE) {
           *error = true;
         }
