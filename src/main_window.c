@@ -266,7 +266,7 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
     }
 
     // Restore default value for first operand
-    //itoa(false, 0, 0, 0, first_operand_string);
+    itoa(false, 0, 0, 0, first_operand_string);
 
   } else {
 

@@ -24,7 +24,7 @@ int increase_value(int value) {
 }
 
 int add_figure(int value) {
-  if (value < MAX_CHARACTERS) {
+  if (value < power(10, MAX_NUM_CHARS)) {
     
     return value *= 10;
     
@@ -74,9 +74,16 @@ void itoa (bool is_result, int value, int num_decimals, int decimals, char *resu
   int tmp_value = 0, tmp_decimals = 0;
   bool is_trailing = true;
 
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "value = %d, num_decimals = %d, decimals = %d", value, num_decimals, decimals);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "==============================================================");
+  
+  
   while (num_decimals > 0) {
 
     tmp_decimals = decimals % 10;
+
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "num_decimals = %d", num_decimals);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "tmp_decimals = %d", tmp_decimals);
     
     // Remove trailing zeros when formatting an operation result
     if (!is_result || tmp_decimals != 0 || !is_trailing) {
@@ -84,12 +91,7 @@ void itoa (bool is_result, int value, int num_decimals, int decimals, char *resu
       is_trailing = false;
     }
 
-    if (abs(decimals) % power(10, num_decimals) < power(10, num_decimals - 1) && abs(decimals) != 0) {
-
-      *ptr++ = '0';
-      num_decimals--;
-
-    }
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "decimals = %d", decimals);
     
     decimals /= 10;
     num_decimals--;
@@ -98,12 +100,21 @@ void itoa (bool is_result, int value, int num_decimals, int decimals, char *resu
       *ptr++ = '.';
     }
 
-  }  
+  }
+  
+  if (num_decimals > 0) {
+
+    *ptr++ = '0';
+    *ptr++ = '.';
+
+  }
 
   do {
 
     tmp_value = value % 10;   
     value /= 10;
+    
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "tmp_value = %d", tmp_value);
     
     *ptr++ = abs(tmp_value) + '0';
       
@@ -130,7 +141,7 @@ int string_to_extended(char *operand) {
   // In case there's no point, append decimals
   if (point_position == -1) {
     
-    strcat(operand, ".00");
+    strcat(operand, ".000");
     
   // If there's point, calculate num of decimals  
   } else {
@@ -270,7 +281,7 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
         }
       }
       // Calculate integer and decimal separatedly, then add them
-      return (first_value / 100) * second_value + ((first_value % 100) * second_value) / 100;
+      return (first_value / MULTIPLY_FACTOR) * second_value + ((first_value % MULTIPLY_FACTOR) * second_value) / MULTIPLY_FACTOR;
     
     // Division
     default:      
@@ -279,11 +290,11 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
         return -1;
       }
       // If there's enough margin, increase precision;
-      if (first_value < MAX_VALUE / 100) {
-        return (first_value * 100) / second_value;
+      if (first_value < MAX_VALUE / MULTIPLY_FACTOR) {
+        return (first_value * MULTIPLY_FACTOR) / second_value;
       // Otherwise, get rid of second value's decimals
       } else {
-        return first_value / (second_value / 100);
+        return first_value / (second_value / MULTIPLY_FACTOR);
       }
       
   }
