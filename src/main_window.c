@@ -65,7 +65,7 @@ static void divider_layer_update_proc(Layer *layer, GContext *ctx) {
 }
 
 // Called on .load handler event, init layout
-static void window_load() { 
+static void window_load() {  
   Layer *window_layer = window_get_root_layer(window);
   window_bounds = layer_get_bounds(window_layer);
   
@@ -167,56 +167,71 @@ void result_click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) result_click_handler);
 }
 
-// Implement increase value handler
-void increase_value_click_handler(ClickRecognizerRef recognizer, void *context) {
-  if (current_num_decimals > 0) {
-    current_decimals = increase_value(current_decimals);
-  } else {
-    current_value = increase_value(current_value);
-  }
-  set_text_current_operand(false);
-}
-
-// Implement add figure handler
-void add_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
-  if (current_num_decimals > 0) {
-    if (current_num_decimals < MAX_DECIMALS) {
-      current_num_decimals++;
-      current_decimals = add_figure(current_decimals);
-    }
-  } else {
-    current_value = add_figure(current_value);
-  }
-  set_text_current_operand(false);
-}
-
-// Implement remove figure handler
-void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
-  if (current_num_decimals > 0) {
-    current_decimals = remove_figure(current_decimals);
-    current_num_decimals--;
-  } else {
-    current_value = remove_figure(current_value);
-  }
-  set_text_current_operand(false);
-}
-
-// Implement add point handler
-void add_point_click_handler(ClickRecognizerRef recognizer, void *context) {
-  if (current_num_decimals == 0) {
-    current_num_decimals++;
-    set_text_current_operand(false);
-  }
-}
-
-// Implement select operand handler
-void select_operation_click_handler(ClickRecognizerRef recognizer, void *context) {
+bool is_error_state() {
   const char *first = text_layer_get_text(first_operand_text_layer);
   if (strcmp(first, _("Division by")) == 0 || strcmp(first, _("Result")) == 0) {
     text_layer_set_text(first_operand_text_layer, first_operand_string);
     // Reset second operand text layer
     text_layer_set_text(second_operand_text_layer, "");
+    return true;
   } else {
+    return false;
+  }
+}
+
+// Implement increase value handler
+void increase_value_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if (!is_error_state()) {
+    if (current_num_decimals > 0) {
+      current_decimals = increase_value(current_decimals);
+    } else {
+      current_value = increase_value(current_value);
+    }
+    set_text_current_operand(false);
+  }
+}
+
+// Implement add figure handler
+void add_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if (!is_error_state()) {
+    if (current_num_decimals > 0) {
+      if (current_num_decimals < MAX_DECIMALS) {
+        current_num_decimals++;
+        current_decimals = add_figure(current_decimals);
+      }
+    } else {
+      current_value = add_figure(current_value);
+    }
+    set_text_current_operand(false);
+  }
+}
+
+// Implement remove figure handler
+void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if (!is_error_state()) {
+    if (current_num_decimals > 0) {
+      current_decimals = remove_figure(current_decimals);
+      current_num_decimals--;
+    } else {
+      current_value = remove_figure(current_value);
+    }
+    set_text_current_operand(false);
+  }
+}
+
+// Implement add point handler
+void add_point_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if (!is_error_state()) {
+    if (current_num_decimals == 0) {
+      current_num_decimals++;
+      set_text_current_operand(false);
+    }
+  }
+}
+
+// Implement select operand handler
+void select_operation_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if (!is_error_state()) {
     operation_window_push();
   }
 }
@@ -231,41 +246,39 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
   // Reset window
   // Set first operand as current
   first_operand = true;
-  
-  // Prevent division by zero
-  if (second_operand_int == 0 && operation_enum == Division) {
+          
+  // Perform calculation
+  bool error = false;
+  int extended_current_value = get_result(first_operand_int,  operation_enum, second_operand_int, &error);
+
+  if (error) {
     
-    text_layer_set_text(first_operand_text_layer, _("Division by"));
-    text_layer_set_text(second_operand_text_layer, _("zero!"));
+    if (operation_enum == Division && extended_current_value == -1) {
+
+      text_layer_set_text(first_operand_text_layer, _("Division by"));
+      text_layer_set_text(second_operand_text_layer, _("zero!"));
+
+    } else {
+
+      text_layer_set_text(first_operand_text_layer, _("Result"));
+      text_layer_set_text(second_operand_text_layer, _("too big!"));
+
+    }
+
     // Restore default value for first operand
-    itoa(false, 0, 0, 0, first_operand_string);
-    
+    //itoa(false, 0, 0, 0, first_operand_string);
+
   } else {
-        
-    // Perform calculation
-    int extended_current_value = get_result(first_operand_int,  operation_enum, second_operand_int);
-    
+
     extended_to_components(extended_current_value, &current_value, &current_num_decimals, &current_decimals);
-    
-    // Ignore result if it's too big 
-//    if ( current_value > MAX_VALUE || current_value < MIN_VALUE) {
-     
-//      text_layer_set_text(first_operand_text_layer, _("Result"));
-//      text_layer_set_text(second_operand_text_layer, _("too big!"));
-      // Restore default value for first operand
-//      itoa(0, 0, 0, first_operand_string);
-     
-//    } else {
-     
-      // Set calculation result as first operand
-      set_text_current_operand(true);
-      
-      // Reset second operand text layer
-      text_layer_set_text(second_operand_text_layer, "");
-     
-//    }
-    
-  }
+
+    // Set calculation result as first operand
+    set_text_current_operand(true);
+
+    // Reset second operand text layer
+    text_layer_set_text(second_operand_text_layer, "");
+
+  } 
   
   // Restore current value
   current_value = 0;

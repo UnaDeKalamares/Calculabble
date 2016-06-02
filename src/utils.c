@@ -235,23 +235,58 @@ void extended_to_components(int extended, int *value, int *num_decimals, int *de
 
 }
 
-int get_result(int first_value, int operation, int second_value) {  
+int get_result(int first_value, int operation, int second_value, bool *error) {
   switch (operation) {
+    
     // Addition
     case Addition:
+      // Check operand signs
+      if ((first_value > 0) == (second_value > 0)) {
+        // Check for overflow
+        if (first_value + second_value > MAX_VALUE) {
+          *error = true;
+        }
+      }
       return first_value + second_value;
+    
     // Subtraction
     case Subtraction:
+      // Check operand signs
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "first_value = %d; second_value = %d", first_value, second_value);
+      if ((first_value > 0) == (second_value > 0)) {
+        // Check for overflow
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "%d - %d = %d", first_value, second_value, first_value - second_value);
+        if (first_value - second_value < MIN_VALUE) {
+          *error = true;
+        }
+      }
       return first_value - second_value;
+    
     // Multiplication
     case Multiplication:
-      return (first_value * second_value) / 100;
-    // Division
-    default:
-      if (second_value == 0) {
-        return 0;
-      } else {
-        return (first_value * 100 / second_value);
+      // Check operand signs
+      if ((first_value > 0) == (second_value > 0)) {
+        // Check for overflow
+        if (first_value > get_result(MAX_VALUE, Division, second_value, error)) {
+          *error = true;
+        }
       }
+      // Calculate integer and decimal separatedly, then add them
+      return (first_value / 100) * second_value + ((first_value % 100) * second_value) / 100;
+    
+    // Division
+    default:      
+      if (second_value == 0) {
+        *error = true;
+        return -1;
+      }
+      // If there's enough margin, increase precision;
+      if (first_value < MAX_VALUE / 100) {
+        return (first_value * 100) / second_value;
+      // Otherwise, get rid of second value's decimals
+      } else {
+        return first_value / (second_value / 100);
+      }
+      
   }
 }
