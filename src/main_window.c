@@ -144,7 +144,7 @@ static void window_load() {
   second_operand_string = (char*) malloc(15 * sizeof(char));
   
   // Init first_operand_string
-  itoa(false, current_value, current_num_decimals, current_decimals, first_operand_string);
+  components_to_string(false, current_value, current_num_decimals, current_decimals, first_operand_string);
   text_layer_set_text(first_operand_text_layer, first_operand_string);
   
 }
@@ -266,7 +266,7 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
     }
 
     // Restore default value for first operand
-    itoa(false, 0, 0, 0, first_operand_string);
+    components_to_string(false, 0, 0, 0, first_operand_string);
 
   } else {
 
@@ -304,10 +304,10 @@ void result_click_handler(ClickRecognizerRef recognizer, void *context) {
 // Set current value in the correct text layer
 void set_text_current_operand(bool is_result) {
   if (first_operand) {
-    itoa(is_result, current_value, current_num_decimals, current_decimals, first_operand_string);
+    components_to_string(is_result, current_value, current_num_decimals, current_decimals, first_operand_string);
     text_layer_set_text(first_operand_text_layer, first_operand_string);
   } else {
-    itoa(is_result, current_value, current_num_decimals, current_decimals, second_operand_string);
+    components_to_string(is_result, current_value, current_num_decimals, current_decimals, second_operand_string);
     text_layer_set_text(second_operand_text_layer, second_operand_string);
   }
 }
@@ -348,7 +348,7 @@ static void window_appear() {
     current_value = 0;
     current_num_decimals = 0;
     current_decimals = 0;
-    itoa(false, current_value, current_num_decimals, current_decimals, second_operand_string);
+    components_to_string(false, current_value, current_num_decimals, current_decimals, second_operand_string);
     text_layer_set_text(second_operand_text_layer, second_operand_string);
     
     // Replace action bar select button icon

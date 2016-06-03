@@ -47,6 +47,7 @@ int remove_figure(int value) {
   }
 }
 
+// Find character in string
 int find_char(char *string, char char_to_find) {
   char* ptr = string;
   int occurence = -1;
@@ -69,52 +70,42 @@ int find_char(char *string, char char_to_find) {
   }
 }
 
-void itoa (bool is_result, int value, int num_decimals, int decimals, char *result) {  
+// Transform number in components into string
+void components_to_string(bool is_result, int value, int num_decimals, int decimals, char *result) {
   char *ptr = result, *ptr1 = result, tmp_char;
   int tmp_value = 0, tmp_decimals = 0;
-  bool is_trailing = true;
-
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "value = %d, num_decimals = %d, decimals = %d", value, num_decimals, decimals);
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "==============================================================");
+  int tmp_num_decimals = num_decimals;
+  bool is_trailing = true;  
   
-  
-  while (num_decimals > 0) {
+  while (tmp_num_decimals > 0) {
 
     tmp_decimals = decimals % 10;
-
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "num_decimals = %d", num_decimals);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "tmp_decimals = %d", tmp_decimals);
     
-    // Remove trailing zeros when formatting an operation result
+    // Don't add trailing zeros when formatting an operation result,
     if (!is_result || tmp_decimals != 0 || !is_trailing) {
       *ptr++ = abs(tmp_decimals) + '0';
       is_trailing = false;
     }
-
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "decimals = %d", decimals);
     
     decimals /= 10;
-    num_decimals--;
-
-    if (num_decimals == 0) {
-      *ptr++ = '.';
-    }
+    tmp_num_decimals--;
 
   }
   
-  if (num_decimals > 0) {
-
+  // Add leading zeroes
+  if (tmp_num_decimals > 0) {
     *ptr++ = '0';
+  }
+  
+  // Add point only if number has decimals
+  if (num_decimals != 0) {
     *ptr++ = '.';
-
   }
 
   do {
 
     tmp_value = value % 10;   
     value /= 10;
-    
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "tmp_value = %d", tmp_value);
     
     *ptr++ = abs(tmp_value) + '0';
       
@@ -131,6 +122,7 @@ void itoa (bool is_result, int value, int num_decimals, int decimals, char *resu
 
 }
 
+// Transform string into extended integer
 int string_to_extended(char *operand) {  
   int result = 0;
   int operand_length = strlen(operand);
@@ -154,7 +146,8 @@ int string_to_extended(char *operand) {
     }
     *aux = '\0';
     
-    if (strlen(decimals) < MAX_DECIMALS) {
+    // Add trailing zeroes to reach max decimals
+    for (int i = strlen(decimals); i < MAX_DECIMALS; i++) {
       strcat(operand, "0");
     }
     
@@ -164,6 +157,7 @@ int string_to_extended(char *operand) {
   
   operand_length = strlen(operand);
 
+  // Parse string
   int exp = 1;
   bool point = false;
   bool negative = false;
@@ -196,10 +190,12 @@ int string_to_extended(char *operand) {
     
   }
   
+  // If string had point char, decrease result
   if (point) {
     result /= 10;
   }
   
+  // Apply sign
   if (negative) {
     result *= -1;
   }
@@ -208,24 +204,25 @@ int string_to_extended(char *operand) {
   
 }
 
+// Transform extended int into number in components (used for creating string)
 void extended_to_components(int extended, int *value, int *num_decimals, int *decimals) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "extended = %d", extended);
   *value = 0;
-  *num_decimals = 0;
+  *num_decimals = MAX_DECIMALS;
   *decimals = 0;
   
-  int i = 0;
+  int current_num_decimals = 0;
   
   int exp = 0;
   while (extended != 0) {
 
-    if (i < MAX_DECIMALS) {
+    if (current_num_decimals < MAX_DECIMALS) {
       
       *decimals += (extended % 10) * power(10, exp);
-      extended /= 10;
-      *num_decimals += 1;
-    
+      extended /= 10;    
             
-    } else if (i == MAX_DECIMALS) {
+    // Check if there weren't decimals
+    } else if (current_num_decimals == MAX_DECIMALS) {
             
       exp = -1;      
       if (*decimals == 0) {
@@ -239,22 +236,22 @@ void extended_to_components(int extended, int *value, int *num_decimals, int *de
       
     }
     
-    i++;
+    current_num_decimals++;
     exp++;
     
   }
 
 }
 
+// Perform operation
 int get_result(int first_value, int operation, int second_value, bool *error) {
   switch (operation) {
-    
     // Addition
     case Addition:
       // Check operand signs
       if ((first_value > 0) == (second_value > 0)) {
         // Check for overflow
-        if (first_value + second_value > MAX_VALUE) {
+        if (first_value > MAX_VALUE - second_value) {
           *error = true;
         }
       }
@@ -265,7 +262,7 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
       // Check operand signs
       if ((first_value > 0) == (second_value > 0)) {
         // Check for overflow
-        if (first_value - second_value < MIN_VALUE) {
+        if (first_value < MIN_VALUE + second_value) {
           *error = true;
         }
       }
@@ -273,18 +270,20 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
     
     // Multiplication
     case Multiplication:
-      // Check operand signs
-      if ((first_value > 0) == (second_value > 0)) {
-        // Check for overflow
-        if (first_value > get_result(MAX_VALUE, Division, second_value, error)) {
-          *error = true;
-        }
+
+      // Check for overflow
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "first = %d, second = %d", first_value, second_value);
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "first / mult_factor %d", first_value / MULTIPLY_FACTOR);
+      if (second_value / MULTIPLY_FACTOR != 0 && first_value > get_result(MAX_VALUE, Division, second_value, error)) {
+        *error = true;
       }
+      
       // Calculate integer and decimal separatedly, then add them
       return (first_value / MULTIPLY_FACTOR) * second_value + ((first_value % MULTIPLY_FACTOR) * second_value) / MULTIPLY_FACTOR;
     
     // Division
     default:      
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "first = %d, second = %d", first_value, second_value);
       if (second_value == 0) {
         *error = true;
         return -1;
