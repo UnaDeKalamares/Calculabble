@@ -92,7 +92,7 @@ void components_to_string(bool is_result, int value, int num_decimals, int decim
 
   }
   
-  // Add leading zeroes
+  // Add leading zeros
   if (tmp_num_decimals > 0) {
     *ptr++ = '0';
   }
@@ -146,7 +146,7 @@ int string_to_extended(char *operand) {
     }
     *aux = '\0';
     
-    // Add trailing zeroes to reach max decimals
+    // Add trailing zeros to reach max decimals
     for (int i = strlen(decimals); i < MAX_DECIMALS; i++) {
       strcat(operand, "0");
     }
@@ -206,7 +206,6 @@ int string_to_extended(char *operand) {
 
 // Transform extended int into number in components (used for creating string)
 void extended_to_components(int extended, int *value, int *num_decimals, int *decimals) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "extended = %d", extended);
   *value = 0;
   *num_decimals = MAX_DECIMALS;
   *decimals = 0;
@@ -272,8 +271,6 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
     case Multiplication:
 
       // Check for overflow
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "first = %d, second = %d", first_value, second_value);
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "first / mult_factor %d", first_value / MULTIPLY_FACTOR);
       if (second_value / MULTIPLY_FACTOR != 0 && first_value > get_result(MAX_VALUE, Division, second_value, error)) {
         *error = true;
       }
@@ -283,7 +280,6 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
     
     // Division
     default:      
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "first = %d, second = %d", first_value, second_value);
       if (second_value == 0) {
         *error = true;
         return -1;
