@@ -1,5 +1,22 @@
 #include "utils.h"
 
+/**************************************************************************
+  Copyright (C) 2016 CarlosPC
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**************************************************************************/
+
 int power(int a, int b){
   int result = 1;
   for (int i = 0; i < b; i++) {
@@ -70,6 +87,7 @@ int find_char(char *string, char char_to_find) {
   }
 }
 
+// Based on rageandqq implementation: https://gist.github.com/rageandqq/2ab31c71e5c2185e20d2
 // Transform number in components into string
 void components_to_string(bool is_result, int value, int num_decimals, int decimals, char *result) {
   char *ptr = result, *ptr1 = result, tmp_char;
