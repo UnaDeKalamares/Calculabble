@@ -32,6 +32,8 @@ static GBitmap *multiplication_bitmap;
 static GBitmap *multiplication_bitmap_black;
 static GBitmap *division_bitmap;
 static GBitmap *division_bitmap_black;
+static GBitmap *squared_bitmap;
+static GBitmap *squared_bitmap_black;
 
 
 static int window_height;
@@ -74,11 +76,17 @@ static void draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex 
         menu_cell_basic_draw(ctx, cell_layer, _("Division"), NULL, division_bitmap_black);
       }
       break;
+    case 4:
+      if (highlighted) {
+        menu_cell_basic_draw(ctx, cell_layer, _("Squared"), NULL, squared_bitmap);
+      } else {
+        menu_cell_basic_draw(ctx, cell_layer, _("Squared"), NULL, squared_bitmap_black);
+      }
   }
 }
 
 static int16_t get_cell_height_callback(struct MenuLayer *menu_layer, MenuIndex *cell_index, void *context) {
-  return window_height / NUM_ROWS;
+  return window_height / 4;
 }
 
 // Called on .unload handler event, destroy layout
@@ -91,11 +99,13 @@ static void window_unload() {
   gbitmap_destroy(subtraction_bitmap);
   gbitmap_destroy(multiplication_bitmap);
   gbitmap_destroy(division_bitmap);
+  gbitmap_destroy(squared_bitmap);
   
   gbitmap_destroy(addition_bitmap_black);
   gbitmap_destroy(subtraction_bitmap_black);
   gbitmap_destroy(multiplication_bitmap_black);
   gbitmap_destroy(division_bitmap_black);
+  gbitmap_destroy(squared_bitmap_black);
   
   // Destroy the Window
   window_destroy(window);
@@ -117,8 +127,12 @@ static void select_callback(struct MenuLayer *menu_layer, MenuIndex *cell_index,
       operation_enum = Multiplication;
       break;
     // Division
-    default:
+    case 3:
       operation_enum = Division;
+      break;
+    // Squared
+    default:
+      operation_enum = Squared;
       break; 
   }
   first_operand = false;
@@ -162,6 +176,9 @@ static void window_load() {
   
   division_bitmap = gbitmap_create_with_resource(RESOURCE_ID_DIVISION);
   division_bitmap_black = gbitmap_create_with_resource(RESOURCE_ID_DIVISION_BLACK);   
+  
+  squared_bitmap = gbitmap_create_with_resource(RESOURCE_ID_SQUARED);
+  squared_bitmap_black = gbitmap_create_with_resource(RESOURCE_ID_SQUARED_BLACK);
 }
 
 void operation_window_push() {

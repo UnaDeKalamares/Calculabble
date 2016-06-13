@@ -58,6 +58,7 @@ void select_last_operation_click_handler(ClickRecognizerRef recognizer, void *co
 void select_operation_click_handler(ClickRecognizerRef recognizer, void *context);
 void result_click_handler(ClickRecognizerRef recognizer, void *context);
 void set_text_current_operand(bool is_result);
+void perform_operation();
 void redraw();
 
 static void init_operation_bitmap_layer() {
@@ -216,8 +217,9 @@ void increase_value_click_handler(ClickRecognizerRef recognizer, void *context) 
   }
 }
 
+// Implement negate operand handler
 void negate_operand_click_handler(ClickRecognizerRef recognizer, void *context) {
-  current_value *= -1;
+  current_value = negate(current_value);
   set_text_current_operand(false);
 }
 
@@ -281,7 +283,10 @@ void select_operation_click_handler(ClickRecognizerRef recognizer, void *context
 
 // Implement result handler
 void result_click_handler(ClickRecognizerRef recognizer, void *context) {
-    
+    perform_operation();  
+}
+
+void perform_operation() {
   // Get operands as ints
   int first_operand_int = string_to_extended(first_operand_string);
   int second_operand_int = string_to_extended(second_operand_string);
@@ -372,45 +377,56 @@ void redraw() {
     // Init bitmap
     switch(operation_enum) {
       case Addition:
-      operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ADDITION);
-      break;
+        operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ADDITION);
+        break;
       case Subtraction:
-      operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION);
-      break;
+        operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_SUBTRACTION);
+        break;
       case Multiplication:
-      operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION);
-      break;
+        operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_MULTIPLICATION);
+        break;
+      case Division:
+        operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_DIVISION);
+        break;
       default:
-      operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_DIVISION);
-      break;
+        operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_SQUARED);
+        break;
     }
     
     // Save last operation
     last_operation = operation_enum;
     
-    // Set operation bitmap
-    bitmap_layer_set_bitmap(operation_bitmap_layer, operation_bitmap);
-    // Change bitmap layer background color to transparent
-    bitmap_layer_set_background_color(operation_bitmap_layer, GColorClear);
-    // Set bitmap composition to use transparent background
-    bitmap_layer_set_compositing_mode(operation_bitmap_layer, GCompOpSet);
-  
-    // Set second operand text layer value
-    current_value = 0;
-    current_num_decimals = 0;
-    current_decimals = 0;
-    components_to_string(false, current_value, current_num_decimals, current_decimals, second_operand_string);
-    text_layer_set_text(second_operand_text_layer, second_operand_string);
+    if (last_operation == Squared) {
+      
+      perform_operation();
+      
+    } else {
     
-    // Replace action bar select button icon
-    if (!select_bitmap) {
-      gbitmap_destroy(select_bitmap);
+      // Set operation bitmap
+      bitmap_layer_set_bitmap(operation_bitmap_layer, operation_bitmap);
+      // Change bitmap layer background color to transparent
+      bitmap_layer_set_background_color(operation_bitmap_layer, GColorClear);
+      // Set bitmap composition to use transparent background
+      bitmap_layer_set_compositing_mode(operation_bitmap_layer, GCompOpSet);
+    
+      // Set second operand text layer value
+      current_value = 0;
+      current_num_decimals = 0;
+      current_decimals = 0;
+      components_to_string(false, current_value, current_num_decimals, current_decimals, second_operand_string);
+      text_layer_set_text(second_operand_text_layer, second_operand_string);
+      
+      // Replace action bar select button icon
+      if (!select_bitmap) {
+        gbitmap_destroy(select_bitmap);
+      }
+      select_bitmap = gbitmap_create_with_resource(RESOURCE_ID_RESULT);
+      action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, select_bitmap, true);
+      
+      // Replace action bar click config provider
+      action_bar_layer_set_click_config_provider(action_bar_layer, result_click_config_provider);
+      
     }
-    select_bitmap = gbitmap_create_with_resource(RESOURCE_ID_RESULT);
-    action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, select_bitmap, true);
-    
-    // Replace action bar click config provider
-    action_bar_layer_set_click_config_provider(action_bar_layer, result_click_config_provider);
   }
 }
 

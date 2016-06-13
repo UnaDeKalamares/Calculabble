@@ -40,6 +40,10 @@ int increase_value(int value) {
   return value;
 }
 
+int negate(int value) {
+  return value *= -1;
+}
+
 int add_figure(int value) {
   if (value < power(10, MAX_NUM_CHARS)) {
     
@@ -297,7 +301,7 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
       return (first_value / MULTIPLY_FACTOR) * second_value + ((first_value % MULTIPLY_FACTOR) * second_value) / MULTIPLY_FACTOR;
     
     // Division
-    default:      
+    case Division:
       if (second_value == 0) {
         *error = true;
         return -1;
@@ -309,6 +313,10 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
       } else {
         return first_value / (second_value / MULTIPLY_FACTOR);
       }
+    
+    // Squared
+    default:      
+      return get_result(first_value, Multiplication, first_value, error);
       
   }
 }

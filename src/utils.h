@@ -14,10 +14,12 @@ enum Operation {
   Addition = 1,
   Subtraction = 2,
   Multiplication = 3,
-  Division = 4
+  Division = 4,
+  Squared = 5
 };
 
 int increase_value(int value);
+int negate(int value);
 int add_figure(int value);
 int remove_figure(int value);
 int find_char(char *string, char char_to_find);
