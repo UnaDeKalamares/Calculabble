@@ -179,8 +179,8 @@ void operation_click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
   window_multi_click_subscribe(BUTTON_ID_DOWN, 2, 0, 0, false, (ClickHandler) remove_figure_click_handler);
   window_long_click_subscribe(BUTTON_ID_DOWN, 0, (ClickHandler) add_point_click_handler, NULL);
-  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_last_operation_click_handler);
-  window_long_click_subscribe(BUTTON_ID_SELECT, 0, (ClickHandler) select_operation_click_handler, NULL);
+  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_operation_click_handler);
+  window_long_click_subscribe(BUTTON_ID_SELECT, 0, (ClickHandler) select_last_operation_click_handler, NULL);
 }
 
 // Define click handlers for each button interactor (when introducing second operand)
