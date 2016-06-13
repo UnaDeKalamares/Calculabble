@@ -50,6 +50,7 @@ static GBitmap *down_bitmap;
 void operation_click_config_provider(void *context);
 void result_click_config_provider(void *context);
 void increase_value_click_handler(ClickRecognizerRef recognizer, void *context);
+void negate_operand_click_handler(ClickRecognizerRef recognizer, void *context);
 void add_figure_click_handler(ClickRecognizerRef recognizer, void *context);
 void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context);
 void add_point_click_handler(ClickRecognizerRef recognizer, void *context);
@@ -173,6 +174,7 @@ static void window_load() {
 // Define click handlers for each button interactor (when introducing first operand)
 void operation_click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) increase_value_click_handler);
+  window_long_click_subscribe(BUTTON_ID_UP, 0, (ClickHandler) negate_operand_click_handler, NULL);
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
   window_multi_click_subscribe(BUTTON_ID_DOWN, 2, 0, 0, false, (ClickHandler) remove_figure_click_handler);
   window_long_click_subscribe(BUTTON_ID_DOWN, 0, (ClickHandler) add_point_click_handler, NULL);
@@ -183,6 +185,7 @@ void operation_click_config_provider(void *context) {
 // Define click handlers for each button interactor (when introducing second operand)
 void result_click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) increase_value_click_handler);
+  window_long_click_subscribe(BUTTON_ID_UP, 0, (ClickHandler) negate_operand_click_handler, NULL);
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
   window_multi_click_subscribe(BUTTON_ID_DOWN, 2, 0, 0, false, (ClickHandler) remove_figure_click_handler);
   window_long_click_subscribe(BUTTON_ID_DOWN, 0, (ClickHandler) add_point_click_handler, NULL);
@@ -211,6 +214,11 @@ void increase_value_click_handler(ClickRecognizerRef recognizer, void *context) 
     }
     set_text_current_operand(false);
   }
+}
+
+void negate_operand_click_handler(ClickRecognizerRef recognizer, void *context) {
+  current_value *= -1;
+  set_text_current_operand(false);
 }
 
 // Implement add figure handler
