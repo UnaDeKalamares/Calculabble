@@ -37,6 +37,8 @@ static int current_value = 0;
 static int current_num_decimals = 0;
 static int current_decimals = 0;
 
+static int last_operation = -1;
+
 static int left_margin = 0;
 
 static ActionBarLayer *action_bar_layer;
@@ -51,9 +53,11 @@ void increase_value_click_handler(ClickRecognizerRef recognizer, void *context);
 void add_figure_click_handler(ClickRecognizerRef recognizer, void *context);
 void remove_figure_click_handler(ClickRecognizerRef recognizer, void *context);
 void add_point_click_handler(ClickRecognizerRef recognizer, void *context);
+void select_last_operation_click_handler(ClickRecognizerRef recognizer, void *context);
 void select_operation_click_handler(ClickRecognizerRef recognizer, void *context);
 void result_click_handler(ClickRecognizerRef recognizer, void *context);
 void set_text_current_operand(bool is_result);
+void redraw();
 
 static void init_operation_bitmap_layer() {
   // Create operation bitmap layer
@@ -172,7 +176,8 @@ void operation_click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) add_figure_click_handler);
   window_multi_click_subscribe(BUTTON_ID_DOWN, 2, 0, 0, false, (ClickHandler) remove_figure_click_handler);
   window_long_click_subscribe(BUTTON_ID_DOWN, 0, (ClickHandler) add_point_click_handler, NULL);
-  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_operation_click_handler);
+  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_last_operation_click_handler);
+  window_long_click_subscribe(BUTTON_ID_SELECT, 0, (ClickHandler) select_operation_click_handler, NULL);
 }
 
 // Define click handlers for each button interactor (when introducing second operand)
@@ -242,6 +247,19 @@ void add_point_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (current_num_decimals == 0) {
       current_num_decimals++;
       set_text_current_operand(false);
+    }
+  }
+}
+
+// Implement select last operation handler
+void select_last_operation_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if (last_operation != -1) {
+    operation_enum = last_operation;
+    first_operand = false;
+    redraw();
+  } else {
+    if (!is_error_state()) {
+      operation_window_push();
     }
   }
 }
@@ -331,6 +349,11 @@ void set_text_current_operand(bool is_result) {
 
 // Called when window shows up
 static void window_appear() {
+  redraw();
+}
+
+// Redraw main window to reflect current state
+void redraw() {
   // If we chose an operation
   if (!first_operand) {
     
@@ -353,6 +376,9 @@ static void window_appear() {
       operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_DIVISION);
       break;
     }
+    
+    // Save last operation
+    last_operation = operation_enum;
     
     // Set operation bitmap
     bitmap_layer_set_bitmap(operation_bitmap_layer, operation_bitmap);
@@ -378,7 +404,6 @@ static void window_appear() {
     // Replace action bar click config provider
     action_bar_layer_set_click_config_provider(action_bar_layer, result_click_config_provider);
   }
-
 }
 
 // Called on .unload handler event, destroy layout

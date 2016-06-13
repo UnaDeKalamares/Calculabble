@@ -1,0 +1,114 @@
+{
+    "author": "CarlosPC",
+    "dependencies": {},
+    "keywords": [],
+    "name": "calculabble",
+    "pebble": {
+        "capabilities": [
+            ""
+        ],
+        "displayName": "Calculabble",
+        "enableMultiJS": true,
+        "messageKeys": {},
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "data/locale_english.bin",
+                    "name": "LOCALE_ENGLISH",
+                    "targetPlatforms": null,
+                    "type": "raw"
+                },
+                {
+                    "file": "data/locale_spanish.bin",
+                    "name": "LOCALE_SPANISH",
+                    "targetPlatforms": null,
+                    "type": "raw"
+                },
+                {
+                    "file": "images/result.png",
+                    "name": "RESULT",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/division_black.png",
+                    "name": "DIVISION_BLACK",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/multiplication_black.png",
+                    "name": "MULTIPLICATION_BLACK",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/subtraction_black.png",
+                    "name": "SUBTRACTION_BLACK",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/addition_black.png",
+                    "name": "ADDITION_BLACK",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/division.png",
+                    "name": "DIVISION",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/multiplication.png",
+                    "name": "MULTIPLICATION",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/subtraction.png",
+                    "name": "SUBTRACTION",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/addition.png",
+                    "name": "ADDITION",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/operation.png",
+                    "name": "OPERATION",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/add_figure.png",
+                    "name": "ADD_FIGURE",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/increase.png",
+                    "name": "INCREASE",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk"
+        ],
+        "uuid": "3f6733f5-443a-4ba1-ba5d-b8a70031447c",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.1.0"
+}
