@@ -15,7 +15,8 @@ enum Operation {
   Subtraction = 2,
   Multiplication = 3,
   Division = 4,
-  Squared = 5
+  Squared = 5,
+  Root = 6
 };
 
 int increase_value(int value);

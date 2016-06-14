@@ -269,6 +269,7 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
   switch (operation) {
     // Addition
     case Addition:
+    {
       // Check operand signs
       if ((first_value > 0) == (second_value > 0)) {
         // Check for overflow
@@ -277,9 +278,10 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
         }
       }
       return first_value + second_value;
-    
+    }
     // Subtraction
     case Subtraction:
+    {
       // Check operand signs
       if ((first_value > 0) == (second_value > 0)) {
         // Check for overflow
@@ -288,10 +290,10 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
         }
       }
       return first_value - second_value;
-    
+    }
     // Multiplication
     case Multiplication:
-
+    {
       // Check for overflow
       if (second_value / MULTIPLY_FACTOR != 0 && first_value > get_result(MAX_VALUE, Division, second_value, error)) {
         *error = true;
@@ -299,9 +301,10 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
       
       // Calculate integer and decimal separatedly, then add them
       return (first_value / MULTIPLY_FACTOR) * second_value + ((first_value % MULTIPLY_FACTOR) * second_value) / MULTIPLY_FACTOR;
-    
+    }
     // Division
     case Division:
+    {
       if (second_value == 0) {
         *error = true;
         return -1;
@@ -313,10 +316,34 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
       } else {
         return first_value / (second_value / MULTIPLY_FACTOR);
       }
-    
+    }
     // Squared
-    default:      
+    case Squared:
+    {
       return get_result(first_value, Multiplication, first_value, error);
-      
+    }
+    // Root
+    default:      
+    {
+      // Disallow negative roots
+      if (first_value < 0) {
+        *error = true;
+        return -1;
+      }
+      // Babylon approximation method of square roots with 10 iterations
+      // https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method
+      int last_intermediate = 1000;
+      // For bigger numbers, increase starting value
+      if (first_value > 9999999) {
+        last_intermediate = 1000000;
+      }
+      int one_half = get_result(1, Division, 2, error);
+      for (int i = 0; i < 9; i++) {
+        int b = get_result(first_value, Division, last_intermediate, error);
+        int a = get_result(last_intermediate, Addition, b, error);
+        last_intermediate = get_result(one_half, Multiplication, a, error);
+      }
+      return last_intermediate;
+    }
   }
 }

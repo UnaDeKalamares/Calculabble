@@ -34,6 +34,8 @@ static GBitmap *division_bitmap;
 static GBitmap *division_bitmap_black;
 static GBitmap *squared_bitmap;
 static GBitmap *squared_bitmap_black;
+static GBitmap *root_bitmap;
+static GBitmap *root_bitmap_black;
 
 
 static int window_height;
@@ -82,6 +84,13 @@ static void draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex 
       } else {
         menu_cell_basic_draw(ctx, cell_layer, _("Squared"), NULL, squared_bitmap_black);
       }
+      break;
+    case 5:
+      if (highlighted) {
+        menu_cell_basic_draw(ctx, cell_layer, _("Root"), NULL, root_bitmap);
+      } else {
+        menu_cell_basic_draw(ctx, cell_layer, _("Root"), NULL, root_bitmap_black);
+      }
   }
 }
 
@@ -100,12 +109,14 @@ static void window_unload() {
   gbitmap_destroy(multiplication_bitmap);
   gbitmap_destroy(division_bitmap);
   gbitmap_destroy(squared_bitmap);
+  gbitmap_destroy(root_bitmap);
   
   gbitmap_destroy(addition_bitmap_black);
   gbitmap_destroy(subtraction_bitmap_black);
   gbitmap_destroy(multiplication_bitmap_black);
   gbitmap_destroy(division_bitmap_black);
   gbitmap_destroy(squared_bitmap_black);
+  gbitmap_destroy(root_bitmap_black);  
   
   // Destroy the Window
   window_destroy(window);
@@ -131,8 +142,12 @@ static void select_callback(struct MenuLayer *menu_layer, MenuIndex *cell_index,
       operation_enum = Division;
       break;
     // Squared
-    default:
+    case 4:
       operation_enum = Squared;
+      break; 
+    // Root
+    default:
+      operation_enum = Root;
       break; 
   }
   first_operand = false;
@@ -179,6 +194,10 @@ static void window_load() {
   
   squared_bitmap = gbitmap_create_with_resource(RESOURCE_ID_SQUARED);
   squared_bitmap_black = gbitmap_create_with_resource(RESOURCE_ID_SQUARED_BLACK);
+  
+  root_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ROOT);
+  root_bitmap_black = gbitmap_create_with_resource(RESOURCE_ID_ROOT_BLACK);
+  
 }
 
 void operation_window_push() {

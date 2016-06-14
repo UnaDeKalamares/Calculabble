@@ -298,7 +298,7 @@ void perform_operation() {
   // Perform calculation
   bool error = false;
   int extended_current_value = get_result(first_operand_int,  operation_enum, second_operand_int, &error);
-
+  
   if (error) {
     
     if (operation_enum == Division && extended_current_value == -1) {
@@ -388,16 +388,18 @@ void redraw() {
       case Division:
         operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_DIVISION);
         break;
-      default:
+      case Squared:
         operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_SQUARED);
         break;
+      case Root:
+        operation_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ROOT);
     }
     
     // Save last operation
     last_operation = operation_enum;
     
-    if (last_operation == Squared) {
-      
+    if (last_operation == Squared || last_operation == Root) {
+  
       perform_operation();
       
     } else {

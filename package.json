@@ -14,6 +14,18 @@
         "resources": {
             "media": [
                 {
+                    "file": "images/root_black.png",
+                    "name": "ROOT_BLACK",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/root.png",
+                    "name": "ROOT",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
                     "file": "images/squared_black.png",
                     "name": "SQUARED_BLACK",
                     "targetPlatforms": null,
