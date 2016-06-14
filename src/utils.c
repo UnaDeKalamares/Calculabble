@@ -320,6 +320,9 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
     // Squared
     case Squared:
     {
+      if (first_value < 0) {
+        first_value *= -1;
+      }
       return get_result(first_value, Multiplication, first_value, error);
     }
     // Root
