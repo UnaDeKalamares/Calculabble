@@ -17,6 +17,14 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **************************************************************************/
 
+int abs(int a) {
+  if (a < 0) {
+    return a *= -1;
+  } else {
+    return a;
+  }
+}
+
 int power(int a, int b){
   int result = 1;
   for (int i = 0; i < b; i++) {
@@ -273,7 +281,7 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
       // Check operand signs
       if ((first_value > 0) == (second_value > 0)) {
         // Check for overflow
-        if (first_value > MAX_VALUE - second_value) {
+        if (abs(first_value) > MAX_VALUE - abs(second_value)) {
           *error = true;
         }
       }
@@ -285,7 +293,7 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
       // Check operand signs
       if ((first_value > 0) == (second_value > 0)) {
         // Check for overflow
-        if (first_value < MIN_VALUE + second_value) {
+        if (abs(first_value) < MIN_VALUE + abs(second_value)) {
           *error = true;
         }
       }
@@ -294,13 +302,18 @@ int get_result(int first_value, int operation, int second_value, bool *error) {
     // Multiplication
     case Multiplication:
     {
+      int sign = -1;;
+      if ((first_value > 0 && second_value > 0) || (first_value < 0 && second_value < 0)) {
+        sign = 1;
+      }
+      
       // Check for overflow
-      if (second_value / MULTIPLY_FACTOR != 0 && first_value > get_result(MAX_VALUE, Division, second_value, error)) {
+      if (abs(second_value) / MULTIPLY_FACTOR != 0 && abs(first_value) > get_result(MAX_VALUE, Division, abs(second_value), error)) {
         *error = true;
       }
       
       // Calculate integer and decimal separatedly, then add them
-      return (first_value / MULTIPLY_FACTOR) * second_value + ((first_value % MULTIPLY_FACTOR) * second_value) / MULTIPLY_FACTOR;
+      return sign * (abs(first_value) / MULTIPLY_FACTOR) * abs(second_value) + ((abs(first_value) % MULTIPLY_FACTOR) * abs(second_value)) / MULTIPLY_FACTOR;
     }
     // Division
     case Division:
