@@ -1,5 +1,5 @@
 #include <pebble.h>
-#include <main_window.h>
+#include "main_window.h"
 #include "localize.h"
 
 /**************************************************************************

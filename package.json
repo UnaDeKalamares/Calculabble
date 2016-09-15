@@ -4,15 +4,18 @@
     "keywords": [],
     "name": "calculabble",
     "pebble": {
-        "capabilities": [
-            ""
-        ],
         "displayName": "Calculabble",
         "enableMultiJS": true,
-        "messageKeys": {},
+        "messageKeys": [],
         "projectType": "native",
         "resources": {
             "media": [
+                {
+                    "file": "images/launcher_icon.png",
+                    "name": "IMAGE_MENU_ICON",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
                 {
                     "file": "images/root_black.png",
                     "name": "ROOT_BLACK",
@@ -127,12 +130,13 @@
         "targetPlatforms": [
             "aplite",
             "basalt",
-            "chalk"
+            "chalk",
+            "diorite"
         ],
         "uuid": "3f6733f5-443a-4ba1-ba5d-b8a70031447c",
         "watchapp": {
             "watchface": false
         }
     },
-    "version": "1.4.0"
+    "version": "1.5.0"
 }
